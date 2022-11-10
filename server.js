@@ -41,7 +41,7 @@ require("./app/routes/globalimages.routes")(app);
 
 var subs = ""
 var transactions = ""
-function filterSubs() {
+/*function filterSubs() {
   return axios.get(
     'http://localhost:8080/api/payment/filterSubscriptions',
   );
@@ -148,12 +148,12 @@ countRecurrentTransactions().then(res => {
       console.log(res.data[i].count)
     }
   }
-})
+})*/
 
 // set port, listen for requests
-const PORT = process.env.PORT || 8080;
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}.`);
+let port=process.env.PORT||8080;
+app.listen(port, () => {
+    console.log(`App running on port ${port} `);
 });
 
 function initial() {
