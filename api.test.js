@@ -19,7 +19,7 @@ require("./app/routes/user.routes")(app);
 require("./app/routes/payments.routes")(app);
 
 test('should return all users', async () => {
-  const res = await axios.get('http://localhost:8080/api/test/all');
+  const res = await axios.get('https://pp-app-backend.herokuapp.com/api/test/all');
   expect(res.status).toEqual(200)
   expect(res).toHaveProperty('data')
   expect(res.data).toBe('Public Content.')
@@ -27,7 +27,7 @@ test('should return all users', async () => {
 
 test('should return user board', async () => {
   
-  const res = await axios.get('http://localhost:8080/api/test/user').catch(e =>{
+  const res = await axios.get('https://pp-app-backend.herokuapp.com/api/test/user').catch(e =>{
     expect(e.response.status).toEqual(403)
     expect(e.message).toBe('Request failed with status code 403')
     expect(e.response.data.message).toBe('No token provided!')
@@ -35,14 +35,14 @@ test('should return user board', async () => {
 })
 
 test('should return admin board', async () => {
-  const res = await axios.get('http://localhost:8080/api/test/admin').catch(e =>{
+  const res = await axios.get('https://pp-app-backend.herokuapp.com/api/test/admin').catch(e =>{
     expect(e.response.status).toEqual(403)
     expect(e.message).toBe('Request failed with status code 403')
     expect(e.response.data.message).toBe('No token provided!')})
 })
 
 test('should return all subscriptions', async () => { 
-    const res = await axios.post('http://localhost:8080/api/payment/getSubscriptions',{
+    const res = await axios.post('https://pp-app-backend.herokuapp.com/api/payment/getSubscriptions',{
       limit: 10,
       offset: 0
     }).catch(e =>{
@@ -53,7 +53,7 @@ test('should return all subscriptions', async () => {
 })
 
 test('should return all pending transactions', async () => {
-  const res = await axios.get('http://localhost:8080/api/payment/getPendingTransactions').catch(e =>{
+  const res = await axios.get('https://pp-app-backend.herokuapp.com/api/payment/getPendingTransactions').catch(e =>{
       expect(e.response.status).toEqual(404)
       expect(e.response.data.message).toBe('Pending transactions not found')
     })
@@ -62,14 +62,14 @@ test('should return all pending transactions', async () => {
 })
 
 test('should create a transaction', async () => { 
-    const res = await axios.post('http://localhost:8080/api/payment/createTransaction',{}).catch(e =>{
+    const res = await axios.post('https://pp-app-backend.herokuapp.com/api/payment/createTransaction',{}).catch(e =>{
       expect(e.response.status).toEqual(400)
       expect(e.response.data.message).toBe('Empty request')
     })
 })
 
 test('should modify subscription state', async () => { 
-    const res = await axios.post('http://localhost:8080/api/payment/modifySubscriptionState',{
+    const res = await axios.post('https://pp-app-backend.herokuapp.com/api/payment/modifySubscriptionState',{
       subscriptionId: 80,
       state: "A"
     })
@@ -78,7 +78,7 @@ test('should modify subscription state', async () => {
 })
 
 test('should fail to find transaction', async () => { 
-  const res = await axios.post('http://localhost:8080/api/payment/modifyTransactionState',{
+  const res = await axios.post('https://pp-app-backend.herokuapp.com/api/payment/modifyTransactionState',{
     state: "P",
     transactionId: 0
   }).catch(e =>{
@@ -88,7 +88,7 @@ test('should fail to find transaction', async () => {
 })
 
 test('should fail to modify transaction state', async () => { 
-    const res = await axios.post('http://localhost:8080/api/payment/modifyTransactionState',{
+    const res = await axios.post('https://pp-app-backend.herokuapp.com/api/payment/modifyTransactionState',{
       state: "P",
       transactionId: 35
     }).catch(e =>{
