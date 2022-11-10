@@ -435,6 +435,7 @@ exports.getMonthIncome = async (req, res) => {
   if (monthAsString.length < 2) monthAsString = '0' + req.body.month.toString();
 
   date = [year, monthAsString].join('-');
+  //res.status(200).send({"total": 0})
 
   if(req.body.month <((new Date()).getMonth() + 1)){
     Transaction.findAll({  
@@ -445,23 +446,26 @@ exports.getMonthIncome = async (req, res) => {
       },
       include: [{
         model: TransactionState,
-        attributes: ['state'],
+        attributes: [],
         where:
-          {[Op.and] : [{state: "A"} ,
-          sequelize.where(sequelize.fn('MONTH', SubscriptionStateHistoric.sequelize.col('paymentDate')), req.body.month),
-          sequelize.where(sequelize.fn('YEAR', SubscriptionStateHistoric.sequelize.col('paymentDate')), year)]},
+        {state: "A"},
+          //{[Op.and] : [{state: "A"} ,
+          //sequelize.where(sequelize.fn('MONTH', SubscriptionStateHistoric.sequelize.col(`paymentDate`)), req.body.month),
+          //sequelize.where(sequelize.fn('YEAR', SubscriptionStateHistoric.sequelize.col('paymentDate')), year)]},
         required: true
       },
      ],
       attributes: [
         [Sequelize.fn("SUM", Sequelize.cast(Sequelize.col("amount"), 'integer')), "totalAssetAmount"]
       ],
+      group : ['transaction.id']
     })
     .then(async (trans) => {
       if (!trans) {
       return res.status(404).send({ message: "trans by month not found" });
       }
-        if(trans[0].dataValues.totalAssetAmount == null){
+        if(trans.length == 0){
+          console.log("null")
           transAmount=0
         }else{
           transAmount=parseInt(trans[0].dataValues.totalAssetAmount)
@@ -472,7 +476,9 @@ exports.getMonthIncome = async (req, res) => {
      });
     }
     else if (req.body.month == ((new Date()).getMonth() + 1)){
-      Transaction.findAll({  
+      console.log("entra")
+      Transaction.findAll({
+        attributes: [[Sequelize.fn("SUM", Sequelize.cast(Sequelize.col("amount"), 'integer')), "totalAssetAmount"]],
         where: {
           paymentDate: {
             [Op.like]: `${date}%` // LIKE '%sample_fruit_string%'
@@ -480,23 +486,21 @@ exports.getMonthIncome = async (req, res) => {
         },
         include: [{
           model: TransactionState,
-          attributes: ['state'],
+          attributes: [],
           where:
-            {[Op.and] : [{state: "A"} ,
+            {state: "A"},/*
             sequelize.where(sequelize.fn('MONTH', SubscriptionStateHistoric.sequelize.col('paymentDate')), req.body.month),
-            sequelize.where(sequelize.fn('YEAR', SubscriptionStateHistoric.sequelize.col('paymentDate')), year)]},
+            sequelize.where(sequelize.fn('YEAR', SubscriptionStateHistoric.sequelize.col('paymentDate')), year)]},*/
           required: true
         },
       ],
-        attributes: [
-          [Sequelize.fn("SUM", Sequelize.cast(Sequelize.col("amount"), 'integer')), "totalAssetAmount"]
-        ],
+      group : ['transaction.id']
       })
       .then(async (trans) => {
         if (!trans) {
         return res.status(404).send({ message: "trans by month not found" });
         }
-        if(trans[0].dataValues.totalAssetAmount == null){
+        if(trans.length == 0){
           transAmount=0
         }else{
           transAmount=parseInt(trans[0].dataValues.totalAssetAmount)
@@ -509,7 +513,7 @@ exports.getMonthIncome = async (req, res) => {
           },
           include: [{
             model: SubscriptionState,
-            attributes: ['state'],
+            attributes: [],
             where:{state: "A"},
             required: true
           },
@@ -517,12 +521,13 @@ exports.getMonthIncome = async (req, res) => {
           attributes: [
             [Sequelize.fn("SUM", Sequelize.cast(Sequelize.col("amount"), 'integer')), "totalAssetAmount"]
           ],
+          group : ['subscription.id']
         })
         .then(async (subs) => {
           if (!subs) {
           return res.status(404).send({ message: "trans by month not found" });
           }
-          if(subs[0].dataValues.totalAssetAmount == null){
+          if(subs.length == 0){
             subsAmount=0
           }else{
             subsAmount=subs[0].dataValues.totalAssetAmount
@@ -544,7 +549,7 @@ exports.getMonthIncome = async (req, res) => {
         },
         include: [{
           model: SubscriptionState,
-          attributes: ['state'],
+          attributes: [],
           where:{state: "A"},
           required: true
         },
@@ -552,12 +557,13 @@ exports.getMonthIncome = async (req, res) => {
         attributes: [
           [Sequelize.fn("SUM", Sequelize.cast(Sequelize.col("amount"), 'integer')), "totalAssetAmount"]
         ],
+        group : ['subscription.id']
       })
       .then(async (trans) => {
         if (!trans) {
         return res.status(404).send({ message: "trans by month not found" });
         }
-        if(trans[0].dataValues.totalAssetAmount == null){
+        if(trans.length == 0){
           transAmount=0
         }else{
           transAmount=parseInt(trans[0].dataValues.totalAssetAmount)
