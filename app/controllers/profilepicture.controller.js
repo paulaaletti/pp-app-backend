@@ -41,11 +41,11 @@ exports.getProfilePicture = async (req, res, next) => {
     const remoteFile = bucket.file(filePath)
     remoteFile.createReadStream()
       .on('error', error => {
-        return next(error)
+        //return next(error)
       })
       .pipe(res)
   } catch (error) {
-    next(error)
+    //next(error)
   }
   
 }
