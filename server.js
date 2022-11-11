@@ -3,6 +3,7 @@ const cors = require("cors");
 const cookieSession = require("cookie-session");
 const jwt = require('jsonwebtoken');
 const axios = require('axios');
+const bodyParser = require('body-parser');
 
 const app = express();
 
@@ -10,6 +11,12 @@ app.use(cors());
 
 // parse requests of content-type - application/json
 app.use(express.json());
+app.use((req, res, next ) => {
+  res.header('Access-Control-Allow-Origin', '*')
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept')
+  res.header('Access-Control-Allow-Methods', 'PUT, PATCH, POST, DELETE, GET, OPTIONS')
+  next()
+})
 
 // parse requests of content-type - application/x-www-form-urlencoded
 app.use(express.urlencoded({ extended: true }));
@@ -153,6 +160,8 @@ let port=process.env.PORT||8080;
 app.listen(port, () => {
     console.log(`App running on port ${port} `);
 });
+app.use(bodyParser.json())
+app.use(bodyParser.urlencoded({ limit: '10mb', extended: false}))
 
 function initial() {
   Role.create({
