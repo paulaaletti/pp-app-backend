@@ -22,6 +22,7 @@ exports.signup = async (req, res) => {
         },
       });
       const result = user.setRoles(roles);
+      const resultMile = user.setMilestones([1]);
       if (result) res.send({ message: "User registered successfully!",id:user.id});
     } else {
       // user has role = 1
