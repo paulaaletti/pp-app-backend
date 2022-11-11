@@ -52,7 +52,7 @@ exports.createSubscription = async (req, res) => {
           id: req.body.userId
         }
         }).then(async (user) => {
-            const response = user.setMilestones([2]);
+            const response = user.setMilestones([1,2]);
         }).catch(err => {
             res.status(500).send({ message: err.message });
         });
