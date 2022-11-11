@@ -44,7 +44,6 @@ exports.getProfilePicture = async (req, res, next) => {
         return next(error)
       })
       .pipe(res)
-      console.log(res)
   } catch (error) {
     return next(error)
   }
