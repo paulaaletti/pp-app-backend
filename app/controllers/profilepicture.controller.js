@@ -39,6 +39,9 @@ exports.getProfilePicture = async (req, res, next) => {
     const id = req.params.id
     const filePath = `profile-pictures/${id}.jpg`
     const remoteFile = bucket.file(filePath)
+    if(!remoteFile) {
+      return "No file found"
+    }
     remoteFile.createReadStream()
       .on('error', error => {
         return next(error)
