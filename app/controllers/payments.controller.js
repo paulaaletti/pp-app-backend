@@ -79,7 +79,6 @@ exports.createTransaction = async (req, res) => {
     return 0;
   }
   try {
-    console.log("entra2")
     const transaction = await Transaction.create({
       amount: req.body.amount,
       type: req.body.type,
@@ -325,7 +324,13 @@ exports.assingLongevityMilestone = async (req, res) => {
       return res.status(404).send({ message: "User Not found." });
     }
     console.log(res)
-      //user.setMilestones([req.body.milestoneId]);
+    if(req.body.milestoneId ==  3){
+      user.setMilestones([1,2,req.body.milestoneId]);
+    }
+    else{
+      user.setMilestones([1,2,3,req.body.milestoneId]);
+    }
+      
       res.status(200).send({ message: "Milestone assigned successfully!" });
   }).catch(err => {
     res.status(500).send({ message: err.message });

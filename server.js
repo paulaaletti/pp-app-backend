@@ -41,7 +41,7 @@ require("./app/routes/globalimages.routes")(app);
 
 var subs = ""
 var transactions = ""
-/*function filterSubs() {
+function filterSubs() {
   return axios.get(
     'https://pp-app-backend.herokuapp.com/api/payment/filterSubscriptions',
   );
@@ -148,7 +148,7 @@ countRecurrentTransactions().then(res => {
       console.log(res.data[i].count)
     }
   }
-})*/
+})
 
 // set port, listen for requests
 let port=process.env.PORT||8080;
