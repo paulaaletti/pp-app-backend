@@ -389,31 +389,15 @@ exports.getAllHistoricSubscriptions = async (req, res) => {
 }
 
 exports.getSubscriptionsStatesByMonth = async (req, res) => {
-  SubscriptionStateHistoric.findAll({  
-      where: {
-        [Op.or]:[{
-          [Op.and] : [
-            sequelize.where(sequelize.fn('MONTH', SubscriptionStateHistoric.sequelize.col('SubscriptionStateHistoric.createdAt')), req.body.month),
-            sequelize.where(sequelize.fn('YEAR', SubscriptionStateHistoric.sequelize.col('SubscriptionStateHistoric.createdAt')), req.body.year),
-          ]},
-          {[Op.and]:[
-            sequelize.where(sequelize.fn('MONTH', SubscriptionStateHistoric.sequelize.col('SubscriptionStateHistoric.createdAt')),'<', req.body.month),
-            sequelize.where(sequelize.fn('YEAR', SubscriptionStateHistoric.sequelize.col('SubscriptionStateHistoric.createdAt')), req.body.year),
-            {[Op.or]:[{state: "P"}, {state:"A"}]}
-          ]
-        }],
-    },
-
-    })
-    .then(async (subsS) => {
-      if (!subsS) {
-      return res.status(404).send({ message: "SubsS by month not found" });
-      }
-      console.log("HERE"+subsS)
-      res.status(200).send(subsS);
-    }).catch(err => {
-        res.status(500).send({ message: err.message });
-    });
+  db.sequelize.query('SELECT * FROM "subscriptionStateHistorics" WHERE EXTRACT(YEAR FROM "createdAt") = '+req.body.year+' AND EXTRACT(MONTH FROM "createdAt") <='+req.body.month+'and (state =\'A\' or state =\'P\')').then(async (subsS) => {
+    if (!subsS) {
+    return res.status(404).send({ message: "SubsS by month not found" });
+    }
+    console.log(subsS[0]);
+    res.status(200).send(subsS[0]);
+  }).catch(err => {
+      res.status(500).send({ message: err.message });
+  });
 }
 
 exports.getMonthIncome = async (req, res) => {
