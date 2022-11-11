@@ -99,7 +99,6 @@ function assingLongevityMilestone(userId,milestoneId) {
 
 filterSubs().then(subs => {
   for( i in subs.data){
-    console.log(i)
     var frequency = subs.data[i].frequency
     var paymentDate = subs.data[i].nextPaymentDate
     var now = new Date();
@@ -144,7 +143,6 @@ countRecurrentTransactions().then(res => {
       assingLongevityMilestone(res.data[i].userId,4).then(res => console.log(res.status))
     }
     else{
-      console.log("No se cumple")
       console.log(res.data[i].count)
     }
   }

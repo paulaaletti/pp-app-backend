@@ -63,7 +63,6 @@ exports.createSubscription = async (req, res) => {
 };
 
 exports.createTransaction = async (req, res) => {
-  console.log("entra")
   console.log(req.body)
   var d = new Date();
       month = '' + (d.getMonth() + 1),
@@ -354,7 +353,6 @@ exports.getPendingTransactions = async (req, res) => {
 
 modifySubscriptionHistoric = async (subscriptionId,state,year,month) => {
   //db.sequelize.query('SELECT * FROM "subscriptionStateHistorics" WHERE "subscriptionId" = '+subscriptionId+' AND (EXTRACT(YEAR FROM "createdAt") = '+year+' AND EXTRACT(MONTH FROM "createdAt") ='+month)
-  console.log("llamada")
   db.sequelize.query('SELECT * FROM "subscriptionStateHistorics" WHERE "subscriptionId" ='+subscriptionId+' and EXTRACT(YEAR FROM "createdAt")='+year+' and EXTRACT(MONTH FROM "createdAt")='+month+' LIMIT 1').then(async (subs) => {
           
           if (!subs) {
@@ -449,7 +447,6 @@ exports.getMonthIncome = async (req, res) => {
       return res.status(404).send({ message: "trans by month not found" });
       }
         if(trans.length == 0){
-          console.log("null")
           transAmount=0
         }else{
           transAmount=parseInt(trans[0].dataValues.totalAssetAmount)
@@ -460,7 +457,6 @@ exports.getMonthIncome = async (req, res) => {
      });
     }
     else if (req.body.month == ((new Date()).getMonth() + 1)){
-      console.log("entra")
       Transaction.findAll({
         attributes: [[Sequelize.fn("SUM", Sequelize.cast(Sequelize.col("amount"), 'integer')), "totalAssetAmount"]],
         where: {

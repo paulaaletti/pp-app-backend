@@ -23,7 +23,6 @@ exports.signup = async (req, res) => {
       });
       const result = user.setRoles(roles);
       if(req.body.roles.includes("user")){
-        console.log('user')
         const resultMile = user.setMilestones([1])};
       if (result) res.send({ message: "El usuario fue registrado exitosamente!",id:user.id});
     } else {
@@ -133,7 +132,7 @@ exports.findUserById = async (req, res) => {
           if (!user) {
             return res.status(200).send(undefined);
           }
-          res.status(200).send(user.dataValues);
+          res.status(200).send(user);
       }).catch(err => {
           res.status(500).send({ message: err.message });
       });
