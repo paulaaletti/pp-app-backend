@@ -175,7 +175,7 @@ app.get('/verify/:token', (req, res)=>{
 	jwt.verify(token, 'ourSecretKey', function(err, decoded) {
 		if (err) {
 			console.log(err);
-			res.send("Email verification failed,possibly the link is invalid or expired");
+			res.send("La verificación del email fallo, posiblemente el link es invalido o ha expirado");
 		}
 		else {
 			res.redirect(`http://localhost:3000/resetPassword/${1}/${token}`); 
