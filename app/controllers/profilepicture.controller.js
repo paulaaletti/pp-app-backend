@@ -43,11 +43,10 @@ exports.getProfilePicture = async (req, res, next) => {
       .on('error', error => {
         return next(error)
       })
-      .pipe(res.data)
+      .pipe(res)
       console.log(res)
   } catch (error) {
-    //console.log(next(error))
-    return res.status(200).send("File not found")
+    return next(error)
   }
   
 }
