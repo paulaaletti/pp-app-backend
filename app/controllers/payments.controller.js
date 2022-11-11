@@ -349,23 +349,19 @@ exports.getPendingTransactions = async (req, res) => {
 }
 
 modifySubscriptionHistoric = async (subscriptionId,state,year,month) => {
-  SubscriptionStateHistoric.findOne({  
-      where: {
-        [Op.and] : [
-        sequelize.where(sequelize.fn('MONTH', SubscriptionStateHistoric.sequelize.col('SubscriptionStateHistoric.createdAt')), month),
-        sequelize.where(sequelize.fn('YEAR', SubscriptionStateHistoric.sequelize.col('SubscriptionStateHistoric.createdAt')), year),
-      ],
-      subscriptionId: subscriptionId}
-    })
-    .then(async (subs) => {
+  //db.sequelize.query('SELECT * FROM "subscriptionStateHistorics" WHERE "subscriptionId" = '+subscriptionId+' AND (EXTRACT(YEAR FROM "createdAt") = '+year+' AND EXTRACT(MONTH FROM "createdAt") ='+month)
+  console.log("llamada")
+  db.sequelize.query('SELECT * FROM "subscriptionStateHistorics" WHERE "subscriptionId" ='+subscriptionId+' and EXTRACT(YEAR FROM "createdAt")='+year+' and EXTRACT(MONTH FROM "createdAt")='+month+' LIMIT 1').then(async (subs) => {
+          
           if (!subs) {
-            const subscriptionStateHistoric = await subscriptionStateHistoric.create({
-              id: subs.id,
+            const subscriptionStateHistoric = await SubscriptionStateHistoric.create({
+              subscriptionId: subscriptionId,
               state: state,
           });
           return "insertado"
           //return res.status(404).send({ message: "Subs not found" });
           }
+          subs=subs[0][0]
           const subscriptionStateHistoric = await SubscriptionStateHistoric.upsert({
             id: subs.id,
             state: state,
@@ -389,7 +385,7 @@ exports.getAllHistoricSubscriptions = async (req, res) => {
 }
 
 exports.getSubscriptionsStatesByMonth = async (req, res) => {
-  db.sequelize.query('SELECT * FROM "subscriptionStateHistorics" WHERE EXTRACT(YEAR FROM "createdAt") = '+req.body.year+' AND EXTRACT(MONTH FROM "createdAt") <='+req.body.month+'and (state =\'A\' or state =\'P\')').then(async (subsS) => {
+  db.sequelize.query('SELECT * FROM "subscriptionStateHistorics" WHERE ((EXTRACT(YEAR FROM "createdAt") = '+req.body.year+' AND EXTRACT(MONTH FROM "createdAt") <='+req.body.month+'and (state =\'A\' or state =\'P\')) or (EXTRACT(YEAR FROM "createdAt") = '+req.body.year+' AND EXTRACT(MONTH FROM "createdAt") ='+req.body.month+'))').then(async (subsS) => {
     if (!subsS) {
     return res.status(404).send({ message: "SubsS by month not found" });
     }
