@@ -137,3 +137,31 @@ exports.findUserById = async (req, res) => {
           res.status(500).send({ message: err.message });
       });
 }
+
+exports.getUserLifeImpact= async (req, res) => {
+  var lifeImpact = 0
+  Transaction.findAll({
+    where: {userId: req.body.userId},
+  })
+  .then(async (trans) => {
+      if (trans) {
+       trans.forEach((t) => {lifeImpact += t.amount})
+       lifeImpact = lifeImpact/100
+
+       User.findAll({
+        where: {id: req.body.userId},
+        include: [
+          db.UserReferred,
+        ],
+      })
+      .then(async (userData) => {
+        res.status(200).send(userData);
+        }).catch(err => {
+            res.status(500).send({ message: err.message });
+        });
+
+      }
+    }).catch(err => {
+        res.status(500).send({ message: err.message });
+    });
+}
