@@ -147,7 +147,7 @@ exports.getUserLifeImpact= async (req, res) => {
       if (trans) {
        trans.forEach((t) => {lifeImpact += t.amount})
        lifeImpact = lifeImpact/100
-        res.status(200).send(lifeImpact);
+        res.status(200).send(lifeImpact.toString());
       }
     }).catch(err => {
         res.status(500).send({ message: err.message });
