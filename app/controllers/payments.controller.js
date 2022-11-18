@@ -458,10 +458,10 @@ exports.getMonthIncome = async (req, res) => {
     }
     else if (req.body.month == ((new Date()).getMonth() + 1)){
       Transaction.findAll({
-        attributes: [[Sequelize.fn("SUM", Sequelize.cast(Sequelize.col("amount"), 'integer')), "totalAssetAmount"]],
+        attributes: [[Sequelize.fn("SUM", Sequelize.cast(Sequelize.col("amount"), 'integer')), "totalAssetAmount"],"subscriptionId"],
         where: {
           paymentDate: {
-            [Op.like]: `${date}%` // LIKE '%sample_fruit_string%'
+            [Op.like]: `${date}%` 
           },
         },
         include: [{
@@ -482,13 +482,21 @@ exports.getMonthIncome = async (req, res) => {
         }
         if(trans.length == 0){
           transAmount=0
+          subsIds=[]
         }else{
-          transAmount=parseInt(trans[0].dataValues.totalAssetAmount)
+          console.log(trans)
+          transAmount=0
+          trans.map(t => transAmount+= parseInt(t.dataValues.totalAssetAmount))
+          console.log(transAmount)
+          subsIds=trans.map(t => t.dataValues.subscriptionId);
         }
         Subscription.findAll({  
           where: {
             nextPaymentDate: {
-              [Op.like]: `${date}%` // LIKE '%sample_fruit_string%'
+              [Op.like]: `${date}%` 
+            },
+            id: {
+              [Op.notIn]: subsIds,
             },
           },
           include: [{
