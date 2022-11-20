@@ -28,6 +28,22 @@ verifyFirstSubscription = async (userId) => {
 }
 
 exports.createSubscription = async (req, res) => {
+  var message = ""
+  if (typeof(req.body.userId)!= "number"){
+    message += "userid debe ser un entero."
+  }
+  if (typeof(req.body.frequency)!= "number" || !([1,2,3,4].includes(req.body.frequency))){
+    message += " La frecuencia es inválida."
+  }
+  if (typeof(req.body.amount)!= "number" || req.body.amount < 0){
+    message += " El monto es inválido."
+  }
+  if (typeof(req.body.nextPaymentDate)!= "string"){
+    message += " La fecha de pago es inválida."
+  }
+  if (message != ""){
+    return res.status(400).send({ message: message });
+  }
   try {
     const subscription = await Subscription.create({
       amount: req.body.amount,
