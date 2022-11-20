@@ -27,8 +27,8 @@ verifyFirstSubscription = async (userId) => {
         });
 }
 
-exports.createSubscription = async (req, res) => {
-  var message = ""
+function verifySubscrptionData(req){
+  message = ""
   if (typeof(req.body.userId)!= "number"){
     message += "userid debe ser un entero."
   }
@@ -41,9 +41,14 @@ exports.createSubscription = async (req, res) => {
   if (typeof(req.body.nextPaymentDate)!= "string"){
     message += " La fecha de pago es inválida."
   }
+  return message
+}
+
+exports.createSubscription = async (req, res) => {
+  var message = verifySubscrptionData(req)
   if (message != ""){
     return res.status(400).send({ message: message });
-  }
+  } 
   try {
     const subscription = await Subscription.create({
       amount: req.body.amount,
