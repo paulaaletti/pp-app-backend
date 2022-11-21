@@ -13,6 +13,8 @@ app.use(cors());
 app.use(express.json());
 
 // parse requests of content-type - application/x-www-form-urlencoded
+//se corren los tests con el comando npm test
+//para crear otra suite solo se debe crear un archivo con el nombre-de-la-suite.test.js
 app.use(express.urlencoded({ extended: true }));
 require("./app/routes/auth.routes")(app);
 require("./app/routes/user.routes")(app);
@@ -21,7 +23,7 @@ require("./app/routes/payments.routes")(app);
 test('should return all users', async () => {
   const res = await axios.get('http://localhost:8080/api/test/all');
   expect(res.status).toEqual(200)
-  expect(res).toHaveProperty('data')
+  expect(res).toHaveProperty('data')//si no esperamos un error no hay necesidad de utilizar catch
   expect(res.data).toBe('Public Content.')
 })
 
@@ -175,7 +177,7 @@ test('should fail to create subscription with invalid data', async () => {
     frequency: -1,
     amount: 0,
     nextPaymentDate: 4,
-  }).catch(e =>{
+  }).catch(e =>{//en caso de esperar un error lo capturamos con un catch
     expect(e.response.status).toEqual(400)
     expect(e.response.data.message).toBe('userid debe ser un entero. La frecuencia es inválida. La fecha de pago es inválida.')
   })
