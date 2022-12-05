@@ -44,6 +44,20 @@ function verifySubscrptionData(req){
   return message
 }
 
+function verifyTransactionData(req){
+  message = ""
+  if (typeof(req.body.userId)!= "number"){
+    message += "userid debe ser un entero válido."
+  }
+  if  (typeof(req.body.amount)!= "number" || req.body.amount < 0){
+    message += " El monto es inválido."
+  }
+  if (typeof(req.body.type)!= "string" || !(["onlyTime","recurrent"].includes(req.body.type))){
+    message += " El tipo de transacción es inválido."
+  }
+  return message
+}
+
 exports.createSubscription = async (req, res) => {
   var message = verifySubscrptionData(req)
   if (message != ""){
@@ -84,6 +98,14 @@ exports.createSubscription = async (req, res) => {
 };
 
 exports.createTransaction = async (req, res) => {
+  if(Object.keys(req.body).length === 0){
+    res.status(400).send({ message: "Empty request" });
+    return 0;
+  }
+  var message = verifyTransactionData(req)
+  if(message != ""){
+    return res.status(400).send({ message: message });
+  }
   console.log(req.body)
   var d = new Date();
       month = '' + (d.getMonth() + 1),
@@ -94,10 +116,6 @@ exports.createTransaction = async (req, res) => {
   if (day.length < 2) 
       day = '0' + day;
     date = [year, month, day].join('-');
-  if(Object.keys(req.body).length === 0){
-    res.status(400).send({ message: "Empty request" });
-    return 0;
-  }
   try {
     const transaction = await Transaction.create({
       amount: req.body.amount,
@@ -420,8 +438,8 @@ exports.getSubscriptionsStatesByMonth = async (req, res) => {
 }
 
 exports.getMonthIncome = async (req, res) => {
-  if(req.body.month == undefined){
-    return "null"
+  if(req.body.month == undefined || req.body.month > 12 || req.body.month < 1){
+    return res.status(404).send({ message: "Month Not found." });
   }
   var d = new Date();
       actualMonth = '' + (d.getMonth() + 1),

@@ -16,6 +16,14 @@ checkDuplicateEmail = async (req, res, next) => {
     }
     next();
 };
+checkEmptyFields = (req, res, next) => {
+  if (req.body.email == "" || req.body.password == "" || req.body.name == "" || req.body.lastname == "") {
+    return res.status(400).send({
+      message: "No puede haber campos vacíos!"
+    });
+  }
+  next();
+};
 checkRolesExisted = (req, res, next) => {
   if (req.body.roles) {
     for (let i = 0; i < req.body.roles.length; i++) {
@@ -32,6 +40,7 @@ checkRolesExisted = (req, res, next) => {
 };
 const verifySignUp = {
   checkDuplicateEmail,
-  checkRolesExisted
+  checkRolesExisted,
+  checkEmptyFields
 };
 module.exports = verifySignUp;

@@ -50,19 +50,19 @@ var subs = ""
 var transactions = ""
 function filterSubs() {
   return axios.get(
-    'https://pp-app-backend.herokuapp.com/api/payment/filterSubscriptions',
+    'http://localhost:8080/api/payment/filterSubscriptions',
   );
 }
 
 function pendingTransactions() {
   return axios.get(
-    'https://pp-app-backend.herokuapp.com/api/payment/getPendingTransactions',
+    'http://localhost:8080/api/payment/getPendingTransactions',
   );
 }
 
 function createTransaction(amount,type,userId,subscriptionId) {
   return axios.post(
-    'https://pp-app-backend.herokuapp.com/api/payment/createTransaction',{
+    'http://localhost:8080/api/payment/createTransaction',{
       amount,
       type,
       userId,
@@ -72,7 +72,7 @@ function createTransaction(amount,type,userId,subscriptionId) {
 }
 function changeNextDate(subscriptionId, nextPaymentDate, lastPaymentDate) {
   return axios.post(
-    'https://pp-app-backend.herokuapp.com/api/payment/modifySubscription',{
+    'http://localhost:8080/api/payment/modifySubscription',{
       subscriptionId, 
       nextPaymentDate, 
       lastPaymentDate
@@ -82,7 +82,7 @@ function changeNextDate(subscriptionId, nextPaymentDate, lastPaymentDate) {
 
 function modifyTransactionState(transactionId,state) {
   return axios.post(
-    'https://pp-app-backend.herokuapp.com/api/payment/modifyTransactionState',{
+    'http://localhost:8080/api/payment/modifyTransactionState',{
       transactionId,
       state
     }
@@ -91,13 +91,13 @@ function modifyTransactionState(transactionId,state) {
 
 function countRecurrentTransactions() {
   return axios.post(
-    'https://pp-app-backend.herokuapp.com/api/payment/countRecurrentTransactions',
+    'http://localhost:8080/api/payment/countRecurrentTransactions',
   );
 }
 
 function assingLongevityMilestone(userId,milestoneId) {
   return axios.post(
-    'https://pp-app-backend.herokuapp.com/api/milestone/assingLongevityMilestone',{
+    'http://localhost:8080/api/milestone/assingLongevityMilestone',{
       userId,
       milestoneId
     }
