@@ -1,6 +1,6 @@
 const db = require("../models");
 const config = require("../config/auth.config");
-const { user: User, role: Role, refreshToken: RefreshToken, milestone:Milestone, transaction: Transaction} = db;
+const { user: User, role: Role, refreshToken: RefreshToken, transaction: Transaction} = db;
 const Op = db.Sequelize.Op;
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");

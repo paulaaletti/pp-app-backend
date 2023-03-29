@@ -1,6 +1,5 @@
-const { subscriptionStateHistoric } = require("../models");
 const db = require("../models");
-const { user: User, subscription: Subscription, transaction: Transaction, subscriptionState: SubscriptionState, transactionState: TransactionState, subscriptionStateHistoric: SubscriptionStateHistoric ,user_milestone: User_milestone} = db;
+const { user: User, subscription: Subscription, transaction: Transaction, subscriptionState: SubscriptionState, transactionState: TransactionState, subscriptionStateHistoric: SubscriptionStateHistoric} = db;
 const Op = db.Sequelize.Op;
 const Sequelize = db.Sequelize;
 
@@ -15,13 +14,12 @@ verifyFirstSubscription = async (userId) => {
             return ({ message: "Subscription Not found." });
             }
             try {
-                console.log(subs.length)
                 return subs.length
             }
             catch (error) {
               return "Error";
             }
-        }).catch(err => {
+        }).catch(() => {
             return "Subscription Not found.";
         });
 }
@@ -71,21 +69,12 @@ exports.createSubscription = async (req, res) => {
       userId: req.body.userId,
     });
     if (subscription) {
-      const subscriptionState = await SubscriptionState.create({
-        state: "A",
-        subscriptionId: subscription.id,
-      });
-      const subscriptionStateHistoric = await SubscriptionStateHistoric.create({
-        state: "A",
-        subscriptionId: subscription.id,
-      });
       console.log("llega a esto")
       User.findOne({
         where: {
           id: req.body.userId
         }
         }).then(async (user) => {
-            const response = user.setMilestones([1,2]);
         }).catch(err => {
             res.status(500).send({ message: err.message });
         });
@@ -124,10 +113,6 @@ exports.createTransaction = async (req, res) => {
       subscriptionId: req.body.subscriptionId,
     });
     if (transaction) {
-      const transactionState = await TransactionState.create({
-        state: "P",
-         transactionId: transaction.id,
-      });
       res.send({ message: "Transaction created successfully!" });
     };
   } catch (error) {
@@ -146,13 +131,6 @@ exports.modifySubscription = async (req, res) => {
             return res.status(404).send({ message: "Subscription Not found." });
             }
             try {
-            const subscription = await Subscription.upsert({
-                id: subs.id,
-                amount: req.body.amount,
-                frequency: req.body.frequency,
-                nextPaymentDate: req.body.nextPaymentDate,
-                lastPaymentDate: req.body.lastPaymentDate,
-            });
                 res.send({ message: "Subscription modified successfully!" });
             }
             catch (error) {
@@ -174,10 +152,6 @@ exports.modifySubscriptionState = async (req, res) => {
             return res.status(404).send({ message: "Subscription state Not found." });
             }
             try {
-            const subscriptionState = await SubscriptionState.upsert({
-                id: subs.id,
-                state: req.body.state,
-            });
                 res.send({ message: "Subscription state modified successfully!" });
             }
             catch (error) {
@@ -203,10 +177,6 @@ exports.modifyTransactionState = async (req, res) => {
               return res.status(400).send({ message: "Invalid state modification." });
             }
             try {
-            const transactionState = await TransactionState.upsert({
-                id: subs.id,
-                state: req.body.state,
-            });
                 res.send({ message: "Transaction state modified successfully!" });
             }
             catch (error) {
@@ -393,20 +363,12 @@ modifySubscriptionHistoric = async (subscriptionId,state,year,month) => {
   db.sequelize.query('SELECT * FROM "subscriptionStateHistorics" WHERE "subscriptionId" ='+subscriptionId+' and EXTRACT(YEAR FROM "createdAt")='+year+' and EXTRACT(MONTH FROM "createdAt")='+month+' LIMIT 1').then(async (subs) => {
           
           if (!subs) {
-            const subscriptionStateHistoric = await SubscriptionStateHistoric.create({
-              subscriptionId: subscriptionId,
-              state: state,
-          });
           return "insertado"
           //return res.status(404).send({ message: "Subs not found" });
           }
           subs=subs[0][0]
-          const subscriptionStateHistoric = await SubscriptionStateHistoric.upsert({
-            id: subs.id,
-            state: state,
-        });
           return "insertado"
-      }).catch(err => {
+      }).catch(() => {
           return "error"
       });
 }
@@ -428,7 +390,6 @@ exports.getSubscriptionsStatesByMonth = async (req, res) => {
     if (!subsS) {
     return res.status(404).send({ message: "SubsS by month not found" });
     }
-    console.log(subsS[0]);
     res.status(200).send(subsS[0]);
   }).catch(err => {
       res.status(500).send({ message: err.message });
@@ -521,10 +482,8 @@ exports.getMonthIncome = async (req, res) => {
           transAmount=0
           subsIds=[]
         }else{
-          console.log(trans)
           transAmount=0
           trans.map(t => transAmount+= parseInt(t.dataValues.totalAssetAmount))
-          console.log(transAmount)
           subsIds=trans.map(t => t.dataValues.subscriptionId);
         }
         Subscription.findAll({  

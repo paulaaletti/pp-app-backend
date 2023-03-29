@@ -1,10 +1,10 @@
-exports.allAccess = (req, res) => {
+exports.allAccess = (_req, res) => {
     res.status(200).send("Public Content.");
   };
-  exports.userBoard = (req, res) => {
+  exports.userBoard = (_req, res) => {
     res.status(200).send("User Content.");
   };
-  exports.adminBoard = (req, res) => {
+  exports.adminBoard = (_req, res) => {
     res.status(200).send("Admin Content.");
   };
   

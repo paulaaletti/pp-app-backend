@@ -1,7 +1,5 @@
 const db = require("../models");
-const { activity: Activity, user: User, subscription: Subscription, transaction: Transaction, subscriptionState: SubscriptionState, transactionState: TransactionState, subscriptionStateHistoric: SubscriptionStateHistoric, milestone:Milestone} = db;
-const Op = db.Sequelize.Op;
-const Sequelize = db.Sequelize;
+const { activity: Activity} = db;
 
 exports.createActivity = async (req, res) => {
     try {

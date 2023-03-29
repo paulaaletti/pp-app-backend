@@ -1,8 +1,15 @@
 module.exports = {
-    HOST: "127.0.0.1",
-    USER: "root",
-    PASSWORD: "123456",//password de la bd como user root
-    DB: "PPDB",//nombre de la bd
+    LOCALDB_HOST: "127.0.0.1",
+    LOCALDB_USER: "root",
+    LOCALDB_PASSWORD: "123456",//password de la bd como user root
+    LOCALDB_DB: "PPDB",//nombre de la bd
+
+    HOST: "patapila-bd-do-user-13800627-0.b.db.ondigitalocean.com",
+    USER: "doadmin",
+    PORT: 25060,
+    PASSWORD: "AVNS_Kc7CdsqakD6F6NqTQnM ",
+    DB: "defaultdb",
+
     dialect: "mysql",
     pool: {
       max: 5,
