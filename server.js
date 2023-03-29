@@ -32,8 +32,6 @@ app.use(
 
 // database
 const db = require("./app/models");
-const userRoutes = require("./app/routes/user.routes");
-const Role = db.role;
 
 db.sequelize.sync();
 
@@ -46,8 +44,6 @@ require("./app/routes/activities.routes")(app);
 require("./app/routes/profilepicture.routes")(app);
 require("./app/routes/globalimages.routes")(app);
 
-var subs = ""
-var transactions = ""
 function filterSubs() {
   return axios.get(
     'http://localhost:8080/api/payment/filterSubscriptions',
@@ -163,23 +159,13 @@ app.listen(port, () => {
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ limit: '10mb', extended: false}))
 
-function initial() {
-  Role.create({
-    id: 1,
-    name: "user",
-  });
-  Role.create({
-    id: 2,
-    name: "admin",
-  });
-}
 
 //token recieve
 app.get('/verify/:token', (req, res)=>{
 	const {token} = req.params;
 
 	// Verifing the JWT token
-	jwt.verify(token, 'ourSecretKey', function(err, decoded) {
+	jwt.verify(token, 'ourSecretKey', function(err) {
 		if (err) {
 			console.log(err);
 			res.send("La verificación del email fallo, posiblemente el link es invalido o ha expirado");

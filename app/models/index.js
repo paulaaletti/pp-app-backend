@@ -1,14 +1,14 @@
 const config = require("../config/db.config.js");
 const Sequelize = require("sequelize");
 
-const sequelize = new Sequelize(config.DB,
-                                config.USER,
-                                config.PASSWORD,
+const sequelize = new Sequelize(config.LOCALDB_DB,
+                                config.LOCALDB_USER,
+                                config.LOCALDB_PASSWORD,
                                 {
-                                    host: config.HOST,
-                                    port: config.PORT,
+                                    host: config.LOCALDB_HOST,
+                                    port: config.LOCALDB_PORT,
                                     dialect: config.dialect,
-                                    ssl: config.SSL == "true",
+                                    //ssl: config.SSL == "true",
    
                                 });
 
@@ -26,7 +26,6 @@ db.changePasswordToken = require("../models/changePasswordToken.model.js")(seque
 db.subscriptionStateHistoric = require("../models/subscriptionStateHistoric.model.js")(sequelize, Sequelize);
 db.milestone = require("./milestone.model.js")(sequelize, Sequelize);
 db.activity = require("./activity.model.js")(sequelize, Sequelize);
-//db.event = require("../models/event.model.js")(sequelize, Sequelize);
 
 db.role.belongsToMany(db.user, {
   through: "user_roles",
