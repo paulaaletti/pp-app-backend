@@ -1,14 +1,14 @@
 const config = require("../config/db.config.js");
 const Sequelize = require("sequelize");
 
-const sequelize = new Sequelize(config.LOCALDB_DB,
-                                config.LOCALDB_USER,
-                                config.LOCALDB_PASSWORD,
+const sequelize = new Sequelize(config.DB,
+                                config.USER,
+                                config.PASSWORD,
                                 {
-                                    host: config.LOCALDB_HOST,
-                                    port: config.LOCALDB_PORT,
+                                    host: config.HOST,
+                                    port: config.PORT,
                                     dialect: config.dialect,
-                                    //ssl: config.SSL == "true",
+                                    ssl: config.SSL == "true",
    
                                 });
 
