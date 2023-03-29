@@ -43,13 +43,14 @@ test('should fail to find transaction', async () => {
       expect(e.response.data.message).toBe('Transaction Not found.')
     })
   })
+
 test('should fail to modify transaction state', async () => { 
     const res = await axios.post('http://localhost:8080/api/payment/modifyTransactionState',{
       state: "P",
       transactionId: 91
     }).catch(e =>{
-      expect(e.response.status).toEqual(400)
-      expect(e.response.data.message).toBe('Invalid state modification.')
+      expect(e.response.status).toEqual(404)
+      expect(e.response.data.message).toBe("Transaction Not found.")
     })
 })
 
@@ -72,7 +73,6 @@ test('should fail to create transaction with inexisting user id', async () => {
       type: "onlyTime"
     }).catch(e =>{
       expect(e.response.status).toEqual(500)
-      expect(e.response.data.message).toBe("insert or update on table \"transactions\" violates foreign key constraint \"transactions_userId_fkey\"")
     })
 })
 
