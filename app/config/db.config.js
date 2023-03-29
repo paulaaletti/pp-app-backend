@@ -7,8 +7,9 @@ module.exports = {
     HOST: "patapila-bd-do-user-13800627-0.b.db.ondigitalocean.com",
     USER: "doadmin",
     PORT: 25060,
-    PASSWORD: "AVNS_Kc7CdsqakD6F6NqTQnM ",
-    DB: "defaultdb",
+    PASSWORD: "AVNS_Kc7CdsqakD6F6NqTQnM",
+    DB: "ppdb",
+    SSL: "true",
 
     dialect: "mysql",
     pool: {

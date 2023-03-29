@@ -8,6 +8,8 @@ const sequelize = new Sequelize(config.DB,
                                     host: config.HOST,
                                     port: config.PORT,
                                     dialect: config.dialect,
+                                    ssl: config.SSL == "true",
+   
                                 });
 
 const db = {};
