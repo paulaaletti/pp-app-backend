@@ -1,5 +1,6 @@
 const config = require("../config/db.config.js");
 const Sequelize = require("sequelize");
+const fs = require('fs');
 
 const sequelize = new Sequelize(config.DB,
                                 config.USER,
@@ -8,8 +9,12 @@ const sequelize = new Sequelize(config.DB,
                                     host: config.HOST,
                                     port: config.PORT,
                                     dialect: config.dialect,
-                                    ssl: config.SSL == "true",
-   
+                                    // ssl: config.SSL == "true",
+                                    dialectOptions: {
+                                      ssl: {
+                                        ca: fs.readFileSync("ca-certificate.crt")
+                                        }
+                                      }
 });
 
 sequelize.authenticate().then(() => {
@@ -38,6 +43,7 @@ db.role.belongsToMany(db.user, {
   foreignKey: "roleId",
   otherKey: "userId"
 });
+
 db.user.belongsToMany(db.role, {
   through: "user_roles",
   foreignKey: "userId",
