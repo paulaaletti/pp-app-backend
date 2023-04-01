@@ -10,7 +10,13 @@ const sequelize = new Sequelize(config.DB,
                                     dialect: config.dialect,
                                     ssl: config.SSL == "true",
    
-                                });
+});
+
+sequelize.authenticate().then(() => {
+  console.log('Connection has been established successfully.');
+}).catch((error) => {
+  console.error('Unable to connect to the database: ', error);
+});
 
 const db = {};
 db.Sequelize = Sequelize;
