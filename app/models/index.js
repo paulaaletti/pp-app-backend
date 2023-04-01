@@ -1,6 +1,7 @@
 const config = require("../config/db.config.js");
 const Sequelize = require("sequelize");
 const fs = require('fs');
+const path = require('path');
 
 const sequelize = new Sequelize(config.DB,
                                 config.USER,
@@ -12,7 +13,8 @@ const sequelize = new Sequelize(config.DB,
                                     // ssl: config.SSL == "true",
                                     dialectOptions: {
                                       ssl: {
-                                        ca: fs.readFileSync("ca-certificate.crt")
+                                        ca: fs.readFileSync(path.resolve('app/models/ca-certificate.crt')),
+                                        rejectUnauthorized: false
                                         }
                                       }
 });
