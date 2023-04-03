@@ -94,7 +94,7 @@ exports.createTransaction = async (req, res) => {
   if(message != ""){
     return res.status(400).send({ message: message });
   }
-  console.log(req.body)
+  
   var d = new Date();
       month = '' + (d.getMonth() + 1),
       day = '' + d.getDate(),
@@ -113,6 +113,17 @@ exports.createTransaction = async (req, res) => {
       subscriptionId: req.body.subscriptionId,
     });
     if (transaction) {
+      User.findOne({
+        where: {id: req.body.userId}
+      })
+      .then(async (donner) => {
+        User.update(
+          { totalAmountDonated: donner.totalAmountDonated + req.body.amount}, 
+          { where: { id: req.body.userId } })
+        .then(async () => { res.send({ message: "User total amount donates modify successfully!" }); })
+        .catch(err => { res.status(500).send({ message: err.message }); });
+      }).catch(err => { res.status(500).send({ message: err.message }); });
+      
       res.send({ message: "Transaction created successfully!" });
     };
   } catch (error) {
@@ -570,8 +581,21 @@ exports.addReferred = async (req, res) => {
               if (!userReferrer) {
               return res.status(404).send({ message: "userReferrer not found" });
               }
+
+              User.update(
+                { referralsQuantity: userReferrer.referralsQuantity + 1},
+                { 
+                  where: { id: req.body.userReferrerId } ,
+                  returning: true,
+                  plain: true
+                }  
+              ).then(async () => {}).catch(err => { res.status(500).send({ message: err.message }); });
+
               const result = userReferrer.setReferrerUser(userReferred);
-              if (result) res.send({ message: "UserReferred successfully created!" });
+              if (result) {
+                res.send({ message: "UserReferred successfully created!" });
+                
+              }
           }).catch(err => {
               res.status(500).send({ message: err.message });
         });
@@ -580,3 +604,25 @@ exports.addReferred = async (req, res) => {
         res.status(500).send({ message: err.message });
   });
 }
+
+exports.amountDonatedByRefferals = async (req, res) => {
+  User.findAll({
+    where: {id: req.body.userId},
+    include: [{
+      model: User,
+      as: "ReferrerUser",
+      required: true
+    }],
+
+  })
+  .then(async (rta) => {
+    let users = rta[0].ReferrerUser;
+    let totalAmountFromReferals = 0;
+    users.forEach(user => {
+      totalAmountFromReferals += user.dataValues.totalAmountDonated;
+    });
+    res.status(200).send({"total": totalAmountFromReferals})    
+  }).catch(err => {
+      res.status(500).send({ message: err.message });
+  });
+};
