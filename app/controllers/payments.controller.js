@@ -69,15 +69,10 @@ exports.createSubscription = async (req, res) => {
       userId: req.body.userId,
     });
     if (subscription) {
-      console.log("llega a esto")
-      User.findOne({
-        where: {
-          id: req.body.userId
-        }
-        }).then(async (user) => {
-        }).catch(err => {
-            res.status(500).send({ message: err.message });
-        });
+      SubscriptionState.create({
+        subscriptionId: subscription.id,
+        state: "A",
+      });
     };
     res.send({ message: "Subscription created successfully!" });
   } catch (error) {
@@ -113,6 +108,12 @@ exports.createTransaction = async (req, res) => {
       subscriptionId: req.body.subscriptionId,
     });
     if (transaction) {
+      
+      TransactionState.create({
+        transactionId: transaction.id,
+        state: "P",
+      });
+
       User.findOne({
         where: {id: req.body.userId}
       })
@@ -616,12 +617,18 @@ exports.amountDonatedByRefferals = async (req, res) => {
 
   })
   .then(async (rta) => {
-    let users = rta[0].ReferrerUser;
-    let totalAmountFromReferals = 0;
-    users.forEach(user => {
-      totalAmountFromReferals += user.dataValues.totalAmountDonated;
-    });
-    res.status(200).send({"total": totalAmountFromReferals})    
+    console.log("__________________________________")
+    console.log(rta)
+    if (rta.length != 0) {
+      let users = rta[0].ReferrerUser;
+      let totalAmountFromReferals = 0;
+      users.forEach(user => {
+        totalAmountFromReferals += user.dataValues.totalAmountDonated;
+      });
+      res.status(200).send({"total": totalAmountFromReferals}) 
+  } else {
+      res.status(200).send({"total": 0}) 
+  }
   }).catch(err => {
       res.status(500).send({ message: err.message });
   });
