@@ -155,3 +155,53 @@ exports.getUserLifeImpact= async (req, res) => {
         res.status(500).send({ message: err.message });
     });
 }
+
+exports.updateUserInformation = async (req, res) => {
+  User.update({
+    name: req.body.name,
+    lastname: req.body.lastname,
+  }, {
+    where: {
+      id: req.body.userId,
+    },
+  })
+  .then(async (user) => {
+    if (user) {
+      res.status(200).send(user);
+    }
+    }).catch(err => {
+        res.status(500).send({ message: err.message });
+    });
+}
+
+exports.getCurrentUser = async (req, res) => {
+  User.findOne({
+    where: {
+      id: req.body.userId,
+    },
+  })
+  .then(async (user) => {
+    if (user) {
+      res.status(200).send(user);
+    }
+    }).catch(err => {
+        res.status(500).send({ message: err.message });
+    });
+}
+
+exports.changeUserEmail = async (req, res) => {
+    User.update({
+      email: req.body.email,
+    }, {
+      where: {
+        id: req.body.userId,
+      },
+    })
+    .then(async (user) => {
+      if (user) {
+        res.status(200).send(user);
+      }
+      }).catch(err => {
+          res.status(500).send({ message: err.message });
+      });
+};

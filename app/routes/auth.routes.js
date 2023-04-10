@@ -11,6 +11,7 @@ module.exports = function(app) {
     );
     next();
   });
+
   app.post(
     "/api/auth/signup",
     [
@@ -20,6 +21,15 @@ module.exports = function(app) {
     ],
     controller.signup
   );
+  
+  app.post(
+    "/api/auth/changeUserEmail",
+    [
+      verifySignUp.checkDuplicateEmail,
+      verifySignUp.checkCoindicenceWithOldPassword,
+    ],
+    controller.changeUserEmail
+  );
   app.post("/api/auth/signin", controller.signin);
   app.post("/api/auth/signout", controller.signout);
   app.post("/api/auth/refreshtoken", controller.refreshToken);
@@ -28,4 +38,6 @@ module.exports = function(app) {
   app.post("/api/auth/changePasswordViaSettings",passwordController.changePasswordViaSettings);
   app.post("/api/auth/findUserById", controller.findUserById);
   app.post("/api/auth/getUserLifeImpact", controller.getUserLifeImpact);
+  app.post("/api/auth/updateUserInformation", controller.updateUserInformation);
+  app.post("/api/auth/getCurrentUser", controller.getCurrentUser);
 };

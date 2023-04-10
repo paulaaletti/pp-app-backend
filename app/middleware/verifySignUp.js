@@ -1,5 +1,6 @@
 const db = require("../models");
 const ROLES = db.ROLES;
+const bcrypt = require("bcryptjs");
 const User = db.user;
 
 checkDuplicateEmail = async (req, res, next) => {
@@ -38,9 +39,29 @@ checkRolesExisted = (req, res, next) => {
   
   next();
 };
+
+checkCoindicenceWithOldPassword = async (req, res, next) => {
+  user = await User.findOne({
+    where: {
+      id: req.body.userId,
+    }
+  });
+  const passwordIsValid = bcrypt.compareSync(
+    req.body.oldPassword,
+    user.password
+  );
+  if (!passwordIsValid) {
+    return res.status(400).send({
+      message: "Contraseña Incorrecta. Debe ingresar su contraseña actual para poder cambiar su mail."
+    });
+  }
+  next();
+};
+
 const verifySignUp = {
   checkDuplicateEmail,
   checkRolesExisted,
-  checkEmptyFields
+  checkEmptyFields,
+  checkCoindicenceWithOldPassword
 };
 module.exports = verifySignUp;
