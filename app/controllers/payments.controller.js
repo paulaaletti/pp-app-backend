@@ -108,7 +108,7 @@ exports.createTransaction = async (req, res) => {
       subscriptionId: req.body.subscriptionId,
     });
     if (transaction) {
-      
+
       TransactionState.create({
         transactionId: transaction.id,
         state: "P",
@@ -154,7 +154,7 @@ exports.modifySubscription = async (req, res) => {
 }
 
 exports.modifySubscriptionState = async (req, res) => {
-    SubscriptionState.findOne({
+    SubscriptionState.update({ state: req.body.state }, {
         where: {
           subscriptionId: req.body.subscriptionId
         }
