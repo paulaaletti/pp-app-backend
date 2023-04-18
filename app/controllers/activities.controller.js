@@ -17,7 +17,7 @@ exports.createActivity = async (req, res) => {
     }
   };
 
-  exports.getUserActivities = async (req, res) => {
+  exports.getUserLatesActivities = async (req, res) => {
       Activity.findAll({
         where: {userId: req.body.id},
         order:[['id','DESC']],
@@ -29,3 +29,15 @@ exports.createActivity = async (req, res) => {
             res.status(500).send({ message: err.message });
         });
   };
+
+  exports.getUserActivities = async (req, res) => {
+    Activity.findAll({
+      where: {userId: req.body.id},
+      order:[['id','DESC']],
+    })
+    .then(async (userAct) => {
+      res.status(200).send(userAct);
+      }).catch(err => {
+          res.status(500).send({ message: err.message });
+      });
+};
