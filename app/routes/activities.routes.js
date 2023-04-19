@@ -10,4 +10,5 @@ module.exports = function(app) {
   });
   app.post("/api/activities/createActivity", controller.createActivity);
   app.post("/api/activities/getUserActivities", controller.getUserActivities);
+  app.post("/api/activities/getUserLatesActivities", controller.getUserLatesActivities);
 };

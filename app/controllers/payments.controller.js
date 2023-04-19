@@ -1,3 +1,4 @@
+const axios = require('axios');
 const db = require("../models");
 const { user: User, subscription: Subscription, transaction: Transaction, subscriptionState: SubscriptionState, transactionState: TransactionState, subscriptionStateHistoric: SubscriptionStateHistoric} = db;
 const Op = db.Sequelize.Op;
@@ -99,37 +100,53 @@ exports.createTransaction = async (req, res) => {
   if (day.length < 2) 
       day = '0' + day;
     date = [year, month, day].join('-');
-  try {
-    const transaction = await Transaction.create({
-      amount: req.body.amount,
-      type: req.body.type,
-      paymentDate: date,
-      userId: req.body.userId,
-      subscriptionId: req.body.subscriptionId,
-    });
-    if (transaction) {
 
-      TransactionState.create({
-        transactionId: transaction.id,
-        state: "P",
+    try {
+      const transaction = await Transaction.create({
+        amount: req.body.amount,
+        type: req.body.type,
+        paymentDate: date,
+        userId: req.body.userId,
+        subscriptionId: req.body.subscriptionId,
       });
-
-      User.findOne({
-        where: {id: req.body.userId}
-      })
-      .then(async (donner) => {
-        User.update(
-          { totalAmountDonated: donner.totalAmountDonated + req.body.amount}, 
-          { where: { id: req.body.userId } })
-        .then(async () => { res.send({ message: "User total amount donates modify successfully!" }); })
-        .catch(err => { res.status(500).send({ message: err.message }); });
-      }).catch(err => { res.status(500).send({ message: err.message }); });
-      
-      res.send({ message: "Transaction created successfully!" });
-    };
-  } catch (error) {
-    res.status(500).send({ message: error.message });
-  }
+    
+      if (transaction) {
+        await TransactionState.create({
+          transactionId: transaction.id,
+          state: "P",
+        });
+    
+        const donner = await User.findOne({
+          where: {id: req.body.userId},
+          include: [{
+            model: User,
+            as: "ReferredUser",
+            required: false
+          }],
+        });
+    
+        await User.update(
+          { totalAmountDonated: donner.totalAmountDonated + req.body.amount },
+          { where: { id: req.body.userId } }
+        );
+    
+        const referrerId = donner?.ReferredUser?.[0]?.id;
+        const capitalizedDonnerName = donner.name.charAt(0).toUpperCase() + donner.name.slice(1)
+        if (referrerId) {
+          await axios.post("http://localhost:8080/api/activities/createActivity", {
+            title: "Un referido ha realizado una donación!",
+            description: capitalizedDonnerName + " ha realizado una donacion de $" + req.body.amount + ".",
+            userId: referrerId,
+          });
+        }
+    
+        res.send({ message: "User total amount donates modify successfully and transaction was correctly created!" });
+      };
+    } catch (error) {
+      console.log(error);
+      res.status(500).send({ message: error.message });
+    }
+    
 };
 
 exports.modifySubscription = async (req, res) => {
@@ -617,8 +634,6 @@ exports.amountDonatedByRefferals = async (req, res) => {
 
   })
   .then(async (rta) => {
-    console.log("__________________________________")
-    console.log(rta)
     if (rta.length != 0) {
       let users = rta[0].ReferrerUser;
       let totalAmountFromReferals = 0;
