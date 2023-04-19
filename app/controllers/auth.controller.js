@@ -1,6 +1,6 @@
 const db = require("../models");
 const config = require("../config/auth.config");
-const { user: User, role: Role, refreshToken: RefreshToken, transaction: Transaction} = db;
+const { user: User, role: Role, refreshToken: RefreshToken, transaction: Transaction, publicProfileURL: PublicProfileURL} = db;
 const Op = db.Sequelize.Op;
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
@@ -24,10 +24,12 @@ exports.signup = async (req, res) => {
       const result = user.setRoles(roles);
       if(req.body.roles.includes("user")){
         const resultMile = user.setMilestones([1])};
+          createInitialPublicProfileURL(user.id, res);
       if (result) res.send({ message: "El usuario fue registrado exitosamente!",id:user.id});
     } else {
       // user has role = 1
       const result = user.setRoles([1]);
+        createInitialPublicProfileURL(user.id, res);
       const resultMile = user.setMilestones([1]);
       if (result) res.send({ message: "El usuario fue registrado exitosamente!",id:user.id});
     }
@@ -204,4 +206,48 @@ exports.changeUserEmail = async (req, res) => {
       }).catch(err => {
           res.status(500).send({ message: err.message });
       });
+};
+
+
+
+function createInitialPublicProfileURL(userId, res){
+  User.findOne({
+    where: {
+      id: userId,
+    }
+  }).then(async (user) => {
+    if (!user) {
+      res.status(404).send({ message: "User Not found." });
+    }
+    if(user){
+      User.findAndCountAll({
+        where:{
+          name: user.name,
+          lastname: user.lastname,
+        },
+      }).then(async(resp)=>{
+        if(resp.count>1){
+          userUrl = user.name + user.lastname + "-" + resp.count;
+        }else{
+          userUrl = user.name + user.lastname;
+        }
+        try {
+          const profileUrl = await PublicProfileURL.create({
+            url: userUrl,
+            userId: userId
+          });
+          if (!profileUrl) {
+            res.status(500).send({ message: "Error creating Public Profile URL" });
+          };
+          res.send({ message: "Public Profile URL created successfully!" });
+        } catch (error) {
+          res.status(500).send({ message: error.message });
+        }
+      }).catch(err => {
+        res.status(500).send({ message: err.message });
+      });
+    }
+  }).catch(err => {
+    res.status(500).send({ message: err.message });
+  });
 };

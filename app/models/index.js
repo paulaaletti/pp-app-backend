@@ -39,6 +39,8 @@ db.changePasswordToken = require("../models/changePasswordToken.model.js")(seque
 db.subscriptionStateHistoric = require("../models/subscriptionStateHistoric.model.js")(sequelize, Sequelize);
 db.milestone = require("./milestone.model.js")(sequelize, Sequelize);
 db.activity = require("./activity.model.js")(sequelize, Sequelize);
+db.publicProfileURL = require("./publicProfileURL.model.js")(sequelize, Sequelize);
+
 
 db.role.belongsToMany(db.user, {
   through: "user_roles",
@@ -80,6 +82,9 @@ db.user.belongsToMany(db.milestone, {
 db.activity.belongsTo(db.user,{
   foreignKey: 'userId', targetKey: 'id'
 });
+db.publicProfileURL.belongsTo(db.user,{
+  foreignKey: 'userId', targetKey: 'id'
+});
 db.subscriptionStateHistoric.belongsTo(db.subscription,{
   foreignKey: 'subscriptionId', targetKey: 'id'
 });
@@ -119,6 +124,9 @@ db.subscription.hasOne(db.subscriptionState, {
 db.user.hasMany(db.activity, {
   foreignKey: 'userId', targetKey: 'id'
 });
+db.user.hasOne(db.publicProfileURL, {
+  foreignKey: 'userId', targetKey: 'id'
+  })
 db.subscription.hasMany(db.subscriptionStateHistoric, {
   foreignKey: 'subscriptionId', targetKey: 'id'
 });
