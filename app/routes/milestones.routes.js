@@ -9,5 +9,6 @@ module.exports = function(app) {
     next();
   });
   app.post("/api/milestone/createMilestone", controller.createMilestone);
+  app.post("/api/milestone/addImageToMilestone", controller.addImageToMilestone);
   app.post("/api/milestone/getUserWithMilestones", controller.getUserWithMilestones);
 };
