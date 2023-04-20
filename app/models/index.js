@@ -40,7 +40,7 @@ db.subscriptionStateHistoric = require("../models/subscriptionStateHistoric.mode
 db.milestone = require("./milestone.model.js")(sequelize, Sequelize);
 db.activity = require("./activity.model.js")(sequelize, Sequelize);
 db.publicProfileURL = require("./publicProfileURL.model.js")(sequelize, Sequelize);
-
+db.image = require("./image.model.js")(sequelize, Sequelize);
 
 db.role.belongsToMany(db.user, {
   through: "user_roles",

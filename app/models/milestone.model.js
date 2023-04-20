@@ -1,3 +1,4 @@
+const {DataTypes } = require('sequelize');
 module.exports = (sequelize, Sequelize) => {
     const Milestone = sequelize.define("milestone", {
       title: {
@@ -5,6 +6,9 @@ module.exports = (sequelize, Sequelize) => {
       },
       description: {
         type: Sequelize.STRING,
+      },
+      icon: {
+        type: DataTypes.BLOB,
       }
     });
     return Milestone;
