@@ -122,7 +122,7 @@ filterSubs().then(subs => {
     createTransaction(subs.data[i].amount,"recurrent",subs.data[i].userId,subs.data[i].id).then(res => console.log(res.status))
   
     axios.post("http://localhost:8080/api/activities/createActivity", {
-      title: "Has realizado una donación gracias a tu suscripción!",
+      activityTypeId: 10,
       description: "Gracias a tu suscripción has realizado una donación de $" + subs.data[i].amount + ".",
       userId: subs.data[i].userId,
     });    

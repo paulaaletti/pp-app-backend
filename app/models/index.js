@@ -38,6 +38,7 @@ db.refreshToken = require("../models/refreshToken.model.js")(sequelize, Sequeliz
 db.changePasswordToken = require("../models/changePasswordToken.model.js")(sequelize, Sequelize);
 db.subscriptionStateHistoric = require("../models/subscriptionStateHistoric.model.js")(sequelize, Sequelize);
 db.milestone = require("./milestone.model.js")(sequelize, Sequelize);
+db.activityTyped = require("./activityTyped.model.js")(sequelize, Sequelize);
 db.activity = require("./activity.model.js")(sequelize, Sequelize);
 db.publicProfileURL = require("./publicProfileURL.model.js")(sequelize, Sequelize);
 db.image = require("./image.model.js")(sequelize, Sequelize);
@@ -123,6 +124,12 @@ db.subscription.hasOne(db.subscriptionState, {
 });
 db.user.hasMany(db.activity, {
   foreignKey: 'userId', targetKey: 'id'
+});
+db.activityTyped.hasMany(db.activity, {
+  foreignKey: 'activityTypeId', targetKey: 'id'
+});
+db.activity.belongsTo(db.activityTyped,{
+  foreignKey: 'activityTypeId', targetKey: 'id'
 });
 db.user.hasOne(db.publicProfileURL, {
   foreignKey: 'userId', targetKey: 'id'
