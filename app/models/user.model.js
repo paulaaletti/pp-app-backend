@@ -1,3 +1,4 @@
+const {DataTypes } = require('sequelize');
 module.exports = (sequelize, Sequelize) => {
     const User = sequelize.define("users", {
       name: {
@@ -19,7 +20,10 @@ module.exports = (sequelize, Sequelize) => {
       totalAmountDonated:{
         type: Sequelize.FLOAT,
         defaultValue: 0,
-      },  
+      },
+      profilePicture: {
+        type: DataTypes.BLOB('medium'),
+      }  
     });
     return User;
   };

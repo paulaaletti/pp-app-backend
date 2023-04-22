@@ -41,8 +41,6 @@ require("./app/routes/user.routes")(app);
 require("./app/routes/payments.routes")(app);
 require("./app/routes/milestones.routes")(app);
 require("./app/routes/activities.routes")(app);
-require("./app/routes/profilepicture.routes")(app);
-require("./app/routes/globalimages.routes")(app);
 require("./app/routes/publicProfileURL.routes")(app);
 require("./app/routes/image.routes")(app);
 

@@ -1,3 +1,4 @@
+const multer = require('multer');
 const db = require("../models");
 const config = require("../config/auth.config");
 const { user: User, role: Role, refreshToken: RefreshToken, transaction: Transaction, publicProfileURL: PublicProfileURL} = db;
@@ -76,6 +77,7 @@ exports.signin = (req, res) => {
           refreshToken: refreshToken,
           referralsQuantity: user.referralsQuantity,
           totalAmountDonated: user.totalAmountDonated,
+          profilePicture: user.profilePicture,
         });
       });
     })
@@ -208,8 +210,6 @@ exports.changeUserEmail = async (req, res) => {
       });
 };
 
-
-
 function createInitialPublicProfileURL(userId, res){
   User.findOne({
     where: {
@@ -251,3 +251,39 @@ function createInitialPublicProfileURL(userId, res){
     res.status(500).send({ message: err.message });
   });
 };
+
+
+const storage = multer.memoryStorage();
+const upload = multer({
+  storage: storage,
+  limits: { fileSize: 10 * 1024 * 1024 }, // set a limit of 10MB
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype.startsWith('image/')) {
+      cb(null, true);
+    } else {
+      cb(new Error('Only image files are allowed!'));
+    }
+  },
+}).single('image');
+
+exports.setUserProfilePicture = async (req, res) => {
+  upload(req, res, async (err) => {
+    if (err) {
+      console.error(err);
+      return res.status(400).json({ error: err.message });
+    }
+
+    const image = req.file.buffer;
+    User.update({
+        profilePicture: image,
+    }, {
+      where: {
+        id: req.body.id,
+      },
+    }).then(async (image) => {
+        return res.status(200).json({ message: 'Profile picture updated successfully!' });
+    }).catch(err => {
+        res.status(500).send({ message: err.message });
+    });
+  });
+}
