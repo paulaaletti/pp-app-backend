@@ -41,6 +41,9 @@ db.milestone = require("./milestone.model.js")(sequelize, Sequelize);
 db.activity = require("./activity.model.js")(sequelize, Sequelize);
 db.publicProfileURL = require("./publicProfileURL.model.js")(sequelize, Sequelize);
 db.image = require("./image.model.js")(sequelize, Sequelize);
+db.userPersonalInformation = require("./userPersonalInformation.model.js")(sequelize, Sequelize);
+db.publicProfileInformation = require("./publicProfileInformation.model.js")(sequelize, Sequelize);
+db.publicProfileConfiguration = require("./publicProfileConfiguration.model.js")(sequelize, Sequelize);
 
 db.role.belongsToMany(db.user, {
   through: "user_roles",
@@ -80,6 +83,15 @@ db.user.belongsToMany(db.milestone, {
   otherKey: "milestoneId"
 });
 db.activity.belongsTo(db.user,{
+  foreignKey: 'userId', targetKey: 'id'
+});
+db.userPersonalInformation.belongsTo(db.user,{
+  foreignKey: 'userId', targetKey: 'id'
+});
+db.publicProfileConfiguration.belongsTo(db.user,{
+  foreignKey: 'userId', targetKey: 'id'
+});
+db.publicProfileInformation.belongsTo(db.user,{
   foreignKey: 'userId', targetKey: 'id'
 });
 db.publicProfileURL.belongsTo(db.user,{
@@ -122,6 +134,15 @@ db.subscription.hasOne(db.subscriptionState, {
   foreignKey: 'subscriptionId', targetKey: 'id'
 });
 db.user.hasMany(db.activity, {
+  foreignKey: 'userId', targetKey: 'id'
+});
+db.user.hasOne(db.userPersonalInformation, {
+  foreignKey: 'userId', targetKey: 'id'
+});
+db.user.hasMany(db.publicProfileConfiguration, {
+  foreignKey: 'userId', targetKey: 'id'
+});
+db.user.hasMany(db.publicProfileInformation, {
   foreignKey: 'userId', targetKey: 'id'
 });
 db.user.hasOne(db.publicProfileURL, {
