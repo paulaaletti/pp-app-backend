@@ -134,7 +134,7 @@ exports.createTransaction = async (req, res) => {
         const capitalizedDonnerName = donner.name.charAt(0).toUpperCase() + donner.name.slice(1)
         if (referrerId) {
           await axios.post("http://localhost:8080/api/activities/createActivity", {
-            title: "Un referido ha realizado una donación!",
+            activityTypeId: 9,
             description: capitalizedDonnerName + " ha realizado una donacion de $" + req.body.amount + ".",
             userId: referrerId,
           });
