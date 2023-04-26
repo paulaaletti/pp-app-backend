@@ -4,6 +4,7 @@ const { userPersonalInformation: UserPersonalInformation} = db;
 exports.updateUserPersonalInformation = async (req, res) => {
   UserPersonalInformation.findOne({
     where: {
+      userId: req.body.userId,
     },
   })
   .then(async (userInfo) => {

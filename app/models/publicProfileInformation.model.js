@@ -1,22 +1,28 @@
 module.exports = (sequelize, Sequelize) => {
     const PublicProfileInformation = sequelize.define("publicProfileInformation", {
       publicProfileUrl: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+        defaultValue: "",
       },
       linkedInProfile: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+        defaultValue: "",
       },
       facebookProfile: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+        defaultValue: "",
       },
       twitterProfile: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+        defaultValue: "",
       },
       instagramProfile: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+        defaultValue: "",
       },
       headerText: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+        defaultValue: "",
       },
       referralsQuantity:{
         type: Sequelize.INTEGER,
