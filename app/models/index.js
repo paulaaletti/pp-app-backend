@@ -145,6 +145,7 @@ db.user.hasMany(db.publicProfileConfiguration, {
 });
 db.user.hasMany(db.publicProfileInformation, {
   foreignKey: 'userId', targetKey: 'id'
+});
 db.activityTyped.hasMany(db.activity, {
   foreignKey: 'activityTypeId', targetKey: 'id'
 });

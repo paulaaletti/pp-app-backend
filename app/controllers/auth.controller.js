@@ -1,7 +1,7 @@
 const multer = require('multer');
 const db = require("../models");
 const config = require("../config/auth.config");
-const { user: User, role: Role, refreshToken: RefreshToken, transaction: Transaction, publicProfileURL: PublicProfileURL} = db;
+const { user: User, role: Role, refreshToken: RefreshToken, transaction: Transaction, publicProfileURL: PublicProfileURL, publicProfileInformation: PublicProfileInformation} = db;
 const Op = db.Sequelize.Op;
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
@@ -232,11 +232,11 @@ function createInitialPublicProfileURL(userId, res){
           userUrl = user.name + user.lastname;
         }
         try {
-          const profileUrl = await PublicProfileURL.create({
-            url: userUrl,
+          const profileInfo = await PublicProfileInformation.create({
+            publicProfileUrl: userUrl,
             userId: userId
           });
-          if (!profileUrl) {
+          if (!profileInfo) {
             res.status(500).send({ message: "Error creating Public Profile URL" });
           };
           res.send({ message: "Public Profile URL created successfully!" });
