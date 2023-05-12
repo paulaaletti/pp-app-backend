@@ -1,6 +1,6 @@
 const axios = require('axios');
 const db = require("../models");
-const { user: User, subscription: Subscription, transaction: Transaction, subscriptionState: SubscriptionState, transactionState: TransactionState, subscriptionStateHistoric: SubscriptionStateHistoric} = db;
+const { user: User, subscription: Subscription, transaction: Transaction, subscriptionState: SubscriptionState, transactionState: TransactionState, subscriptionStateHistoric: SubscriptionStateHistoric, publicProfileInformation: PublicProfileInformation} = db;
 const Op = db.Sequelize.Op;
 const Sequelize = db.Sequelize;
 
@@ -116,7 +116,7 @@ exports.createTransaction = async (req, res) => {
           state: "P",
         });
     
-        const donner = await User.findOne({
+        const donner = await PublicProfileInformation.findOne({
           where: {id: req.body.userId},
           include: [{
             model: User,
@@ -125,7 +125,7 @@ exports.createTransaction = async (req, res) => {
           }],
         });
     
-        await User.update(
+        await PublicProfileInformation.update(
           { totalAmountDonated: donner.totalAmountDonated + req.body.amount },
           { where: { id: req.body.userId } }
         );
@@ -589,27 +589,35 @@ exports.getMonthIncome = async (req, res) => {
 };
 
 exports.addReferred = async (req, res) => {
-  User.findOne({where: {id: req.body.userReferredId},})
+  console.log(req.body);
+  User.findOne({
+    where: {id: req.body.userReferredId},
+  })
   .then(async (userReferred) => {
         if (!userReferred) {
         return res.status(404).send({ message: "userReferred not found" });
         }
-        User.findOne({where: {id: req.body.userReferrerId},})
+        User.findOne({
+          where: {id: req.body.userReferrerId},
+          include: [{
+            model: PublicProfileInformation,
+            required: true
+          }],
+        })
         .then(async (userReferrer) => {
               if (!userReferrer) {
               return res.status(404).send({ message: "userReferrer not found" });
               }
-
-              User.update(
-                { referralsQuantity: userReferrer.referralsQuantity + 1},
+        PublicProfileInformation.update(
+                { referralsQuantity: userReferrer.publicProfileInformations[0].dataValues.referralsQuantity + 1},
                 { 
-                  where: { id: req.body.userReferrerId } ,
+                  where: { userId: req.body.userReferrerId } ,
                   returning: true,
                   plain: true
                 }  
               ).then(async () => {}).catch(err => { res.status(500).send({ message: err.message }); });
 
-              const result = userReferrer.setReferrerUser(userReferred);
+              const result = userReferrer.addReferrerUser(userReferred);
               if (result) {
                 res.send({ message: "UserReferred successfully created!" });
                 
@@ -624,10 +632,10 @@ exports.addReferred = async (req, res) => {
 }
 
 exports.amountDonatedByRefferals = async (req, res) => {
-  User.findAll({
+  PublicProfileInformation.findAll({
     where: {id: req.body.userId},
     include: [{
-      model: User,
+      model: PublicProfileInformation,
       as: "ReferrerUser",
       required: true
     }],

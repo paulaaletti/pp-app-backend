@@ -75,8 +75,8 @@ exports.signin = (req, res) => {
           roles: authorities,
           accessToken: token,
           refreshToken: refreshToken,
-          referralsQuantity: user.referralsQuantity,
-          totalAmountDonated: user.totalAmountDonated,
+          //referralsQuantity: user.referralsQuantity,
+          // totalAmountDonated: user.totalAmountDonated,
           profilePicture: user.profilePicture,
         });
       });

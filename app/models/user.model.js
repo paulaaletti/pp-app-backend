@@ -13,14 +13,6 @@ module.exports = (sequelize, Sequelize) => {
       password: {
         type: Sequelize.STRING
       },
-      referralsQuantity:{
-        type: Sequelize.INTEGER,
-        defaultValue: 0,
-      },
-      totalAmountDonated:{
-        type: Sequelize.FLOAT,
-        defaultValue: 0,
-      },
       profilePicture: {
         type: DataTypes.BLOB('medium'),
       }  
