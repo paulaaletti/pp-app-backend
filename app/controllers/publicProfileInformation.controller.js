@@ -15,6 +15,8 @@ exports.updatePublicProfileInformation = async (req, res) => {
         twitterProfile:   req.body.twitterProfile,
         instagramProfile: req.body.instagramProfile,
         headerText: req.body.headerText,
+        totalAmountDonated: req.body.totalAmountDonated,
+        refferalsQuantity: req.body.refferalsQuantity,
         chosenCoverPhotoId: req.body.chosenCoverPhotoId,
         biography: req.body.biography,
       }, {

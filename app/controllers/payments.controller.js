@@ -632,10 +632,10 @@ exports.addReferred = async (req, res) => {
 }
 
 exports.amountDonatedByRefferals = async (req, res) => {
-  PublicProfileInformation.findAll({
+  User.findAll({
     where: {id: req.body.userId},
     include: [{
-      model: PublicProfileInformation,
+      model: User,
       as: "ReferrerUser",
       required: true
     }],
@@ -646,7 +646,14 @@ exports.amountDonatedByRefferals = async (req, res) => {
       let users = rta[0].ReferrerUser;
       let totalAmountFromReferals = 0;
       users.forEach(user => {
-        totalAmountFromReferals += user.dataValues.totalAmountDonated;
+        PublicProfileInformation.findOne({
+          where: {userId: user.id},
+        }).then(async (userInfo) => {
+          totalAmountFromReferals += userInfo.totalAmountDonated;
+        }).catch(err => {
+          res.status(500).send({ message: err.message });
+        }
+        );
       });
       res.status(200).send({"total": totalAmountFromReferals}) 
   } else {
