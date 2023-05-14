@@ -14,21 +14,18 @@ exports.signup = async (req, res) => {
       email: req.body.email,
       password: bcrypt.hashSync(req.body.password, 8),
     });
-    let resultRole=[1];
-    if (req.body.roles) {
-      const roles = await Role.findAll({
+    let resultRole;
+    if (req.body.role) {
+      const role = await Role.findOne({
         where: {
-          name: {
-            [Op.or]: req.body.roles,
-          },
+          name: req.body.role,
         },
       });
-      resultRole = roles;
+      resultRole = role;
     }
-
     const result = user.setRoles(resultRole);
-    if(req.body.roles.includes("user")){
-      const resultMile = user.setMilestones([1]);
+    if(req.body.role === "user"){
+      user.setMilestones([1]);
       User.findAndCountAll({
         where:{
           name: user.name,
