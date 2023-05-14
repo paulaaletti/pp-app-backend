@@ -639,22 +639,24 @@ exports.amountDonatedByRefferals = async (req, res) => {
       as: "ReferrerUser",
       required: true
     }],
-
   })
   .then(async (rta) => {
+    console.log(rta);
     if (rta.length != 0) {
       let users = rta[0].ReferrerUser;
+      console.log(users);
       let totalAmountFromReferals = 0;
-      users.forEach(user => {
-        PublicProfileInformation.findOne({
-          where: {userId: user.id},
-        }).then(async (userInfo) => {
+
+      for (const user of users) {
+        try {
+          const userInfo = await PublicProfileInformation.findOne({
+            where: { userId: user.id },
+          });
           totalAmountFromReferals += userInfo.totalAmountDonated;
-        }).catch(err => {
-          res.status(500).send({ message: err.message });
+        } catch (err) {
+          return res.status(500).send({ message: err.message });
         }
-        );
-      });
+      }
       res.status(200).send({"total": totalAmountFromReferals}) 
   } else {
       res.status(200).send({"total": 0}) 
