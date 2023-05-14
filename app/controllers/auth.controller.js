@@ -34,7 +34,7 @@ exports.signup = async (req, res) => {
       console.log("user");
       };
       //createInitialPublicProfileURL(user.id, res);
-      User.findAndCountAll({
+     /* User.findAndCountAll({
         where:{
           name: user.name,
           lastname: user.lastname,
@@ -59,7 +59,7 @@ exports.signup = async (req, res) => {
         }
       }).catch(err => {
         res.status(500).send({ message: err.message });
-      });
+      });*/
 
 
     if (result) res.send({ message: "El usuario fue registrado exitosamente!",id:user.id});
