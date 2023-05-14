@@ -49,10 +49,10 @@ exports.updatePublicProfileInformation = async (req, res) => {
         res.status(500).send({ message: error.message });
       } 
     }
-    });
+    })
 };
 
-  exports.getPublicProfileInformation = async (req, res) => {
+exports.getPublicProfileInformation = async (req, res) => {
     PublicProfileInformation.findOne({
       where: {
         userId: req.body.userId,

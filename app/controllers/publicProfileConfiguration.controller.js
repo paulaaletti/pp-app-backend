@@ -11,10 +11,10 @@ exports.updatePublicProfileConfiguration = async (req, res) => {
     if (userConfig) {
       PublicProfileConfiguration.update({
         userId: req.body.userId,
-        showLifeImpact: req.body,
+        showLifeImpact: req.body.showLifeImpact,
         showReferralsQuantity:req.body.showReferralsQuantity,
         showTotalAmountDonated:req.body.showTotalAmountDonated,
-        showReferralsTotalAmountDonated:req.body
+        showReferralsTotalAmountDonated:req.body.showReferralsTotalAmountDonated
       }, {
         where: {
           id: userConfig.id,
@@ -31,10 +31,10 @@ exports.updatePublicProfileConfiguration = async (req, res) => {
       try {
         const userConfig = await PublicProfileConfiguration.create({
           userId: req.body.userId,
-          showLifeImpact: req.body,
+          showLifeImpact: req.body.showLifeImpact,
           showReferralsQuantity:req.body.showReferralsQuantity,
           showTotalAmountDonated:req.body.showTotalAmountDonated,
-          showReferralsTotalAmountDonated:req.body
+          showReferralsTotalAmountDonated:req.body.showReferralsTotalAmountDonated,
         });
         if (!userConfig) {
           return res.status(500).send({ message: "Error creating Public Profile Configuration" });
