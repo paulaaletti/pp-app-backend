@@ -1,7 +1,7 @@
 const multer = require('multer');
 const db = require("../models");
 const config = require("../config/auth.config");
-const { user: User, role: Role, refreshToken: RefreshToken, transaction: Transaction, publicProfileInformation: PublicProfileInformation, publicProfileConfiguration: PublicProfileConfiguration} = db;
+const { user: User, role: Role, refreshToken: RefreshToken, transaction: Transaction, publicProfileInformation: PublicProfileInformation, publicProfileConfiguration: PublicProfileConfiguration, userPersonalInformation: UserPersonalInformation} = db;
 const Op = db.Sequelize.Op;
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
@@ -57,6 +57,9 @@ exports.signup = async (req, res) => {
     PublicProfileConfiguration.create({
       userId: user.id,
     });  
+    UserPersonalInformation.create({
+      userId: user.id,
+    });
   };
     if (result) res.send({ message: "El usuario fue registrado exitosamente!",id:user.id});
   } catch (error) {

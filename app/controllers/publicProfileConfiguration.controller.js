@@ -27,22 +27,9 @@ exports.updatePublicProfileConfiguration = async (req, res) => {
         }).catch(err => {
             res.status(500).send({ message: err.message });
         });
+        res.status(200).send({message: "La configuracion del perfil publico del usuario se ha cambiado exitosamente"})
     }else{
-      try {
-        const userConfig = await PublicProfileConfiguration.create({
-          userId: req.body.userId,
-          showLifeImpact: req.body.showLifeImpact,
-          showReferralsQuantity:req.body.showReferralsQuantity,
-          showTotalAmountDonated:req.body.showTotalAmountDonated,
-          showReferralsTotalAmountDonated:req.body.showReferralsTotalAmountDonated,
-        });
-        if (!userConfig) {
-          return res.status(500).send({ message: "Error creating Public Profile Configuration" });
-        };
-        res.send({ message: "Public Profile Configuration created successfully!" });
-      } catch (error) {
-        res.status(500).send({ message: error.message });
-      } 
+      res.status(404).send({ message: "Public Profile Configuration not found." });
     }
     });
 };

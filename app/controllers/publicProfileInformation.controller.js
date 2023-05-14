@@ -10,7 +10,6 @@ exports.updatePublicProfileInformation = async (req, res) => {
   .then(async (userInfo) => {
     if (userInfo) {
       PublicProfileInformation.update({
-        publicProfileUrl: req.body.publicProfileUrl,
         linkedInProfile: req.body.linkedInProfile,
         facebookProfile: req.body.facebookProfile,
         twitterProfile:   req.body.twitterProfile,
@@ -30,26 +29,9 @@ exports.updatePublicProfileInformation = async (req, res) => {
         }).catch(err => {
             res.status(500).send({ message: err.message });
         });
+        res.status(200).send({message: "La informacion del perfil publico del usuario se ha cambiado exitosamente"})
     }else{
-      try {
-        const userInfo = await PublicProfileInformation.create({
-          publicProfileUrl: req.body.publicProfileUrl,
-          linkedInProfile: req.body.linkedInProfile,
-          facebookProfile: req.body.facebookProfile,
-          twitterProfile:   req.body.twitterProfile,
-          instagramProfile: req.body.instagramProfile,
-          headerText: req.body.headerText,
-          chosenCoverPhotoId: req.body.chosenCoverPhotoId,
-          userId: req.body.userId,
-          biography: req.body.biography,
-        });
-        if (!userInfo) {
-          return res.status(500).send({ message: "Error creating Public Profile Information" });
-        };
-        res.send({ message: "Public Profile Information created successfully!" });
-      } catch (error) {
-        res.status(500).send({ message: error.message });
-      } 
+      res.status(404).send({ message: "Public Profile Information not found." });
     }
     })
 };
