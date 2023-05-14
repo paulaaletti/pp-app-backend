@@ -12,7 +12,6 @@ exports.updateUserPersonalInformation = async (req, res) => {
       UserPersonalInformation.update({
         city: req.body.city,
         country: req.body.country,
-        address: req.body.address,
         dateOfBirth:  req.body.dateOfBirth,
         phoneNumber: req.body.phoneNumber,  
       }, {
@@ -22,12 +21,11 @@ exports.updateUserPersonalInformation = async (req, res) => {
       })
       .then(async (user) => {
         if (user) {
-          res.status(200).send(user);
+          res.status(200).send({message: "La informacion personal del usuario se ha cambiado exitosamente"});
         }
         }).catch(err => {
             res.status(500).send({ message: err.message });
         });
-        res.status(200).send({message: "La informacion personal del usuario se ha cambiado exitosamente"})
       }else{
         res.status(404).send({ message: "User Personal Information not found." });
       }

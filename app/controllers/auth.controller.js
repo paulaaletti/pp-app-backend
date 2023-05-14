@@ -167,22 +167,6 @@ exports.findUserById = async (req, res) => {
       });
 }
 
-exports.getUserLifeImpact= async (req, res) => {
-  var lifeImpact = 0
-  Transaction.findAll({
-    where: {userId: req.body.userId},
-  })
-  .then(async (trans) => {
-      if (trans) {
-       trans.forEach((t) => {lifeImpact += t.amount})
-       lifeImpact = lifeImpact/100
-        res.status(200).send(lifeImpact.toString());
-      }
-    }).catch(err => {
-        res.status(500).send({ message: err.message });
-    });
-}
-
 exports.updateUserInformation = async (req, res) => {
   User.update({
     name: req.body.name,

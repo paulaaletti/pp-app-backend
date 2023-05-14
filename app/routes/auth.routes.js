@@ -37,7 +37,6 @@ module.exports = function(app) {
   app.post("/api/auth/updatePasswordViaEmail",passwordController.updatePasswordViaEmail);
   app.post("/api/auth/changePasswordViaSettings",passwordController.changePasswordViaSettings);
   app.post("/api/auth/findUserById", controller.findUserById);
-  app.post("/api/auth/getUserLifeImpact", controller.getUserLifeImpact);
   app.post("/api/auth/updateUserInformation", controller.updateUserInformation);
   app.post("/api/auth/getCurrentUser", controller.getCurrentUser);
   app.post("/api/auth/setUserProfilePicture", controller.setUserProfilePicture);

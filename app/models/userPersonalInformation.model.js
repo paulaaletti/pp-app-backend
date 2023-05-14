@@ -9,10 +9,6 @@ module.exports = (sequelize, Sequelize) => {
         type: Sequelize.STRING,
         defaultValue: "",
       },
-      address: {
-        type: Sequelize.STRING,
-        defaultValue: "",
-      },
       dateOfBirth: {
         type: Sequelize.DATE,
       },
