@@ -14,7 +14,6 @@ exports.updateUserPersonalInformation = async (req, res) => {
         country: req.body.country,
         address: req.body.address,
         dateOfBirth:  req.body.dateOfBirth,
-        biography: req.body.biography,
         phoneNumber: req.body.phoneNumber,  
       }, {
         where: {
@@ -35,7 +34,6 @@ exports.updateUserPersonalInformation = async (req, res) => {
           country: req.body.country,
           address: req.body.address,
           dateOfBirth:  req.body.dateOfBirth,
-          biography: req.body.biography,
           phoneNumber: req.body.phoneNumber,  
           userId: req.body.userId,
         });

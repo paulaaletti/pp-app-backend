@@ -1,7 +1,7 @@
 const multer = require('multer');
 const db = require("../models");
 const config = require("../config/auth.config");
-const { user: User, role: Role, refreshToken: RefreshToken, transaction: Transaction, publicProfileURL: PublicProfileURL, publicProfileInformation: PublicProfileInformation} = db;
+const { user: User, role: Role, refreshToken: RefreshToken, transaction: Transaction, publicProfileInformation: PublicProfileInformation, publicProfileConfiguration: PublicProfileConfiguration} = db;
 const Op = db.Sequelize.Op;
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
@@ -14,8 +14,6 @@ exports.signup = async (req, res) => {
       email: req.body.email,
       password: bcrypt.hashSync(req.body.password, 8),
     });
-    console.log(user);
-    console.log(user.toJSON()); 
     let resultRole=[1];
     if (req.body.roles) {
       const roles = await Role.findAll({
@@ -31,10 +29,7 @@ exports.signup = async (req, res) => {
     const result = user.setRoles(resultRole);
     if(req.body.roles.includes("user")){
       const resultMile = user.setMilestones([1]);
-      console.log("user");
-      };
-      //createInitialPublicProfileURL(user.id, res);
-     /* User.findAndCountAll({
+      User.findAndCountAll({
         where:{
           name: user.name,
           lastname: user.lastname,
@@ -48,20 +43,21 @@ exports.signup = async (req, res) => {
         try {
           const profileInfo = await PublicProfileInformation.create({
             publicProfileUrl: userUrl,
-            userId: userId
+            userId: user.id
           });
           if (!profileInfo) {
             res.status(500).send({ message: "Error creating Public Profile URL" });
           };
-          res.send({ message: "Public Profile URL created successfully!" });
         } catch (error) {
           res.status(500).send({ message: error.message });
         }
       }).catch(err => {
         res.status(500).send({ message: err.message });
-      });*/
-
-
+    });
+    PublicProfileConfiguration.create({
+      userId: user.id,
+    });  
+  };
     if (result) res.send({ message: "El usuario fue registrado exitosamente!",id:user.id});
   } catch (error) {
     res.status(500).send({ message: error.message });
@@ -104,8 +100,6 @@ exports.signin = (req, res) => {
           roles: authorities,
           accessToken: token,
           refreshToken: refreshToken,
-          //referralsQuantity: user.referralsQuantity,
-          // totalAmountDonated: user.totalAmountDonated,
           profilePicture: user.profilePicture,
         });
       });
@@ -237,48 +231,6 @@ exports.changeUserEmail = async (req, res) => {
       }).catch(err => {
           res.status(500).send({ message: err.message });
       });
-};
-
-function createInitialPublicProfileURL(userId, res){
-  User.findOne({
-    where: {
-      id: userId,
-    }
-  }).then(async (user) => {
-    if (!user) {
-      res.status(404).send({ message: "User Not found." });
-    }
-    if(user){
-      User.findAndCountAll({
-        where:{
-          name: user.name,
-          lastname: user.lastname,
-        },
-      }).then(async(resp)=>{
-        if(resp.count>1){
-          userUrl = user.name + user.lastname + "-" + resp.count;
-        }else{
-          userUrl = user.name + user.lastname;
-        }
-        try {
-          const profileInfo = await PublicProfileInformation.create({
-            publicProfileUrl: userUrl,
-            userId: userId
-          });
-          if (!profileInfo) {
-            res.status(500).send({ message: "Error creating Public Profile URL" });
-          };
-          res.send({ message: "Public Profile URL created successfully!" });
-        } catch (error) {
-          res.status(500).send({ message: error.message });
-        }
-      }).catch(err => {
-        res.status(500).send({ message: err.message });
-      });
-    }
-  }).catch(err => {
-    res.status(500).send({ message: err.message });
-  });
 };
 
 

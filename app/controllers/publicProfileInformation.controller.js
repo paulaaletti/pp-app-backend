@@ -17,6 +17,7 @@ exports.updatePublicProfileInformation = async (req, res) => {
         instagramProfile: req.body.instagramProfile,
         headerText: req.body.headerText,
         chosenCoverPhotoId: req.body.chosenCoverPhotoId,
+        biography: req.body.biography,
       }, {
         where: {
           id: userInfo.id,
@@ -40,6 +41,7 @@ exports.updatePublicProfileInformation = async (req, res) => {
           headerText: req.body.headerText,
           chosenCoverPhotoId: req.body.chosenCoverPhotoId,
           userId: req.body.userId,
+          biography: req.body.biography,
         });
         if (!userInfo) {
           return res.status(500).send({ message: "Error creating Public Profile Information" });

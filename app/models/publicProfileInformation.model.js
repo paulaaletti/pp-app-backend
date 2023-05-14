@@ -35,7 +35,11 @@ module.exports = (sequelize, Sequelize) => {
       chosenCoverPhotoId:{
         type: Sequelize.INTEGER,
         defaultValue: 1,
-      }
+      },
+      biography:{
+        type: Sequelize.TEXT,
+        defaultValue: "",
+      } 
     });
     return PublicProfileInformation;
   };
