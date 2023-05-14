@@ -1,4 +1,4 @@
-const controller = require("../controllers/publicProfileInformation.controller");
+const controller = require("../controllers/publicProfileConfiguration.controller");
 
 
 module.exports = function(app) {
@@ -10,6 +10,6 @@ module.exports = function(app) {
     next();
   });
 
-  app.post("/api/publicProfile/updatePublicProfileInformation", controller.updatePublicProfileInformation);
-  app.post("/api/publicProfile/getPublicProfileInformation", controller.getPublicProfileInformation);
+  app.post("/api/publicProfileConfig/updatePublicProfileConfiguration", controller.updatePublicProfileConfiguration);
+  app.post("/api/publicProfileConfig/getPublicProfileConfiguration", controller.getPublicProfileConfiguration);
 };
