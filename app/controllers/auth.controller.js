@@ -14,6 +14,8 @@ exports.signup = async (req, res) => {
       email: req.body.email,
       password: bcrypt.hashSync(req.body.password, 8),
     });
+    console.log(user);
+    console.log(user.toJSON()); 
     let resultRole=[1];
     if (req.body.roles) {
       const roles = await Role.findAll({
@@ -31,7 +33,35 @@ exports.signup = async (req, res) => {
       const resultMile = user.setMilestones([1]);
       console.log("user");
       };
-      createInitialPublicProfileURL(user.id, res);
+      //createInitialPublicProfileURL(user.id, res);
+      User.findAndCountAll({
+        where:{
+          name: user.name,
+          lastname: user.lastname,
+        },
+      }).then(async(resp)=>{
+        if(resp.count>1){
+          userUrl = user.name + user.lastname + "-" + resp.count;
+        }else{
+          userUrl = user.name + user.lastname;
+        }
+        try {
+          const profileInfo = await PublicProfileInformation.create({
+            publicProfileUrl: userUrl,
+            userId: userId
+          });
+          if (!profileInfo) {
+            res.status(500).send({ message: "Error creating Public Profile URL" });
+          };
+          res.send({ message: "Public Profile URL created successfully!" });
+        } catch (error) {
+          res.status(500).send({ message: error.message });
+        }
+      }).catch(err => {
+        res.status(500).send({ message: err.message });
+      });
+
+
     if (result) res.send({ message: "El usuario fue registrado exitosamente!",id:user.id});
   } catch (error) {
     res.status(500).send({ message: error.message });

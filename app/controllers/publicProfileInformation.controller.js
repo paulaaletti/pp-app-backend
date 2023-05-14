@@ -64,14 +64,3 @@ exports.updatePublicProfileInformation = async (req, res) => {
             res.status(500).send({ message: err.message });
         });
   };
-
-  exports.getPublicProfileURL = async (req, res) => {
-    PublicProfileInformation.findOne({
-        where: {userId: req.body.id},
-      })
-      .then(async (profileInfo) => {
-        res.status(200).send({url : "https://patapila-frontend.vercel.app/signup/" + profileInfo.publicProfileUrl});
-        }).catch(err => {
-            res.status(500).send({ message: err.message });
-        });
-};
