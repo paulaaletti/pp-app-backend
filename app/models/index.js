@@ -40,7 +40,6 @@ db.subscriptionStateHistoric = require("../models/subscriptionStateHistoric.mode
 db.milestone = require("./milestone.model.js")(sequelize, Sequelize);
 db.activityTyped = require("./activityTyped.model.js")(sequelize, Sequelize);
 db.activity = require("./activity.model.js")(sequelize, Sequelize);
-db.publicProfileURL = require("./publicProfileURL.model.js")(sequelize, Sequelize);
 db.image = require("./image.model.js")(sequelize, Sequelize);
 db.userPersonalInformation = require("./userPersonalInformation.model.js")(sequelize, Sequelize);
 db.publicProfileInformation = require("./publicProfileInformation.model.js")(sequelize, Sequelize);
@@ -93,9 +92,6 @@ db.publicProfileConfiguration.belongsTo(db.user,{
   foreignKey: 'userId', targetKey: 'id'
 });
 db.publicProfileInformation.belongsTo(db.user,{
-  foreignKey: 'userId', targetKey: 'id'
-});
-db.publicProfileURL.belongsTo(db.user,{
   foreignKey: 'userId', targetKey: 'id'
 });
 db.subscriptionStateHistoric.belongsTo(db.subscription,{
@@ -152,9 +148,6 @@ db.activityTyped.hasMany(db.activity, {
 db.activity.belongsTo(db.activityTyped,{
   foreignKey: 'activityTypeId', targetKey: 'id'
 });
-db.user.hasOne(db.publicProfileURL, {
-  foreignKey: 'userId', targetKey: 'id'
-  })
 db.subscription.hasMany(db.subscriptionStateHistoric, {
   foreignKey: 'subscriptionId', targetKey: 'id'
 });

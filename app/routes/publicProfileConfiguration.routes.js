@@ -12,5 +12,4 @@ module.exports = function(app) {
 
   app.post("/api/publicProfile/updatePublicProfileInformation", controller.updatePublicProfileInformation);
   app.post("/api/publicProfile/getPublicProfileInformation", controller.getPublicProfileInformation);
-  app.post("/api/userInformation/getPublicProfileURL", controller.getPublicProfileURL);
 };

@@ -41,10 +41,10 @@ require("./app/routes/user.routes")(app);
 require("./app/routes/payments.routes")(app);
 require("./app/routes/milestones.routes")(app);
 require("./app/routes/activities.routes")(app);
-require("./app/routes/publicProfileURL.routes")(app);
 require("./app/routes/image.routes")(app);
 require("./app/routes/userInformation.routes")(app);
 require("./app/routes/publicProfileInformation.routes")(app);
+require("./app/routes/publicProfileConfiguration.routes")(app);
 
 function filterSubs() {
   return axios.get(

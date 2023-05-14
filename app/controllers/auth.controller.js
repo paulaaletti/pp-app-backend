@@ -14,6 +14,7 @@ exports.signup = async (req, res) => {
       email: req.body.email,
       password: bcrypt.hashSync(req.body.password, 8),
     });
+    let resultRole=[1];
     if (req.body.roles) {
       const roles = await Role.findAll({
         where: {
@@ -22,18 +23,16 @@ exports.signup = async (req, res) => {
           },
         },
       });
-      const result = user.setRoles(roles);
-      if(req.body.roles.includes("user")){
-        const resultMile = user.setMilestones([1])};
-          createInitialPublicProfileURL(user.id, res);
-      if (result) res.send({ message: "El usuario fue registrado exitosamente!",id:user.id});
-    } else {
-      // user has role = 1
-      const result = user.setRoles([1]);
-        createInitialPublicProfileURL(user.id, res);
-      const resultMile = user.setMilestones([1]);
-      if (result) res.send({ message: "El usuario fue registrado exitosamente!",id:user.id});
+      resultRole = roles;
     }
+
+    const result = user.setRoles(resultRole);
+    if(req.body.roles.includes("user")){
+      const resultMile = user.setMilestones([1]);
+      console.log("user");
+      };
+      createInitialPublicProfileURL(user.id, res);
+    if (result) res.send({ message: "El usuario fue registrado exitosamente!",id:user.id});
   } catch (error) {
     res.status(500).send({ message: error.message });
   }
