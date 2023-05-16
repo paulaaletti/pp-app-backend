@@ -133,6 +133,12 @@ db.subscription.hasOne(db.subscriptionState, {
 db.user.hasMany(db.activity, {
   foreignKey: 'userId', targetKey: 'id'
 });
+db.publicProfileInformation.hasOne(db.publicProfileConfiguration, { 
+  foreignKey: 'userId', targetKey: 'userId' 
+});
+db.publicProfileConfiguration.belongsTo(db.publicProfileInformation, { 
+  foreignKey: 'userId', targetKey: 'userId' 
+});
 db.user.hasOne(db.userPersonalInformation, {
   foreignKey: 'userId', targetKey: 'id'
 });

@@ -1,5 +1,13 @@
 const db = require("../models");
-const { publicProfileInformation: PublicProfileInformation} = db;
+const axios = require("axios");
+const { Sequelize } = require('sequelize');
+const { publicProfileInformation: PublicProfileInformation, user: User, publicProfileConfiguration: PublicProfileConfiguration} = db;
+
+const amountDonatedByRefferals = (userId) => {
+  return axios.post("http://localhost:8080/api/payment/" + "amountDonatedByRefferals", {
+    userId,
+  });
+};
 
 exports.updatePublicProfileInformation = async (req, res) => {
   PublicProfileInformation.findOne({
@@ -48,4 +56,50 @@ exports.getPublicProfileInformation = async (req, res) => {
         }).catch(err => {
             res.status(500).send({ message: err.message });
         });
-  };
+};
+
+exports.getPublicProfileInformationByUserURL = async (req, res) => {
+  try {
+    const userInfo = await PublicProfileInformation.findOne({
+      where: { publicProfileUrl: req.body.userURL },
+      include: [
+        { model: User, required: true },
+        { model: PublicProfileConfiguration, required: true,
+          on: {
+            'publicProfileInformation.userId': Sequelize.col('publicProfileConfiguration.userId')
+          } 
+        },
+      ],
+    });
+    const totalDonatedByRefferals = await amountDonatedByRefferals(userInfo.user.id)
+    const correctoUserInfo = {
+      id: userInfo.id,
+      linkedInProfile: userInfo.linkedInProfile,
+      facebookProfile: userInfo.facebookProfile,
+      twitterProfile: userInfo.twitterProfile,
+      instagramProfile: userInfo.instagramProfile,
+      headerText: userInfo.headerText,
+      chosenCoverPhotoId: userInfo.chosenCoverPhotoId,
+      biography: userInfo.biography,
+      user: {
+        id: userInfo.user.id,
+        name: userInfo.user.name,
+        lastname: userInfo.user.lastname,
+      },
+      publicProfileConfiguration: {
+        showLifeImpact: userInfo.publicProfileConfiguration.showLifeImpact,
+        showReferralsTotalAmountDonated: userInfo.publicProfileConfiguration.showReferralsTotalAmountDonated,
+        showReferralsQuantity: userInfo.publicProfileConfiguration.showReferralsQuantity,
+        showTotalAmountDonated: userInfo.publicProfileConfiguration.showTotalAmountDonated,
+    }}
+    if (userInfo.publicProfileConfiguration.showReferralsQuantity) correctoUserInfo['referralsQuantity']= userInfo.referralsQuantity;
+    if(userInfo.publicProfileConfiguration.showTotalAmountDonated) correctoUserInfo['totalAmountDonated'] = userInfo.totalAmountDonated;
+    if(userInfo.publicProfileConfiguration.showLifeImpact) correctoUserInfo['lifeImpact'] = userInfo.totalAmountDonated+ totalDonatedByRefferals.data.total;
+    if(userInfo.publicProfileConfiguration.showReferralsTotalAmountDonated) correctoUserInfo['referralsTotalAmountDonated'] = totalDonatedByRefferals.data.total;
+
+    res.status(200).send(correctoUserInfo);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send({ message: err.message });
+  }
+};
