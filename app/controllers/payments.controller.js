@@ -117,28 +117,34 @@ exports.createTransaction = async (req, res) => {
         });
     
         const donner = await PublicProfileInformation.findOne({
-          where: {id: req.body.userId},
+          where: {userId: req.body.userId},
           include: [{
             model: User,
-            as: "ReferredUser",
-            required: false
+            required: true,
+            include: [{
+              model: User,
+              as: "ReferredUser",
+              required: false,
+            }],
           }],
         });
     
         await PublicProfileInformation.update(
-          { totalAmountDonated: donner.totalAmountDonated + req.body.amount },
+          { totalAmountDonated: donner.dataValues.totalAmountDonated + req.body.amount },
           { where: { id: req.body.userId } }
         );
     
-        const referrerId = donner?.ReferredUser?.[0]?.id;
-        const capitalizedDonnerName = donner.name.charAt(0).toUpperCase() + donner.name.slice(1)
-        if (referrerId) {
-          await axios.post("http://localhost:8080/api/activities/createActivity", {
-            activityTypeId: 9,
-            description: capitalizedDonnerName + " ha realizado una donacion de $" + req.body.amount + ".",
-            userId: referrerId,
-          });
+        if(donner.dataValues.user.dataValues.ReferredUser.length > 0){
+          const referrerId = donner.dataValues.user.dataValues.ReferredUser[0].id;
+          const capitalizedDonnerName = donner.dataValues.user.dataValues.name.charAt(0).toUpperCase() + donner.dataValues.user.dataValues.name.slice(1)
+          if (referrerId) {
+            await axios.post("http://localhost:8080/api/activities/createActivity", {
+              activityTypeId: 9,
+              description: capitalizedDonnerName + " ha realizado una donacion de $" + req.body.amount + ".",
+              userId: referrerId,
+            });
         }
+      }
     
         res.send({ message: "User total amount donates modify successfully and transaction was correctly created!" });
       };
