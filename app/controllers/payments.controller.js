@@ -127,11 +127,10 @@ exports.createTransaction = async (req, res) => {
               required: false,
             }],
           }],
-        });
-    
+        })
         await PublicProfileInformation.update(
           { totalAmountDonated: donner.dataValues.totalAmountDonated + req.body.amount },
-          { where: { id: req.body.userId } }
+          { where: { userId: req.body.userId } }
         );
     
         if(donner.dataValues.user.dataValues.ReferredUser.length > 0){
