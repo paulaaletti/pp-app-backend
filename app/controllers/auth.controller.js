@@ -161,7 +161,20 @@ exports.findUserById = async (req, res) => {
           if (!user) {
             return res.status(200).send(undefined);
           }
-          res.status(200).send(user);
+          let authorities = [];
+          user.getRoles().then(roles => {
+            for (let i = 0; i < roles.length; i++) {
+              authorities.push("ROLE_" + roles[i].name.toUpperCase());
+            }
+            res.status(200).send({
+              id: user.id,
+              name: user.name,
+              lastname: user.lastname,
+              email: user.email,
+              roles: authorities,
+              profilePicture: user.profilePicture,
+            });
+          });
       }).catch(err => {
           res.status(500).send({ message: err.message });
       });
