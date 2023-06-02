@@ -5,6 +5,13 @@ const { user: User, role: Role, refreshToken: RefreshToken, transaction: Transac
 const Op = db.Sequelize.Op;
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
+const axios = require("axios");
+
+const getSubscription = (userId) => {
+  return axios.post("http://localhost:8080/api/payment/" + "getSubscription", {
+    userId,
+  });
+};
 
 exports.signup = async (req, res) => {
   try {
@@ -173,6 +180,7 @@ exports.findUserById = async (req, res) => {
               email: user.email,
               roles: authorities,
               profilePicture: user.profilePicture,
+              createdAt: user.createdAt,
             });
           });
       }).catch(err => {
@@ -265,3 +273,35 @@ exports.setUserProfilePicture = async (req, res) => {
     });
   });
 }
+
+exports.getUsersForReport = async (req, res) => {
+  try {
+    const users = await User.findAll({
+      limit: req.body.limit,
+      include:[
+        { model: PublicProfileInformation, required: true },
+      ],
+      offset: req.body.offset
+    })
+
+      const usersWithTheirInfo = await Promise.all(users.map(async (user) => {
+        const userInfo = user.dataValues;
+        const userSubscription = await getSubscription(userInfo.id);
+        const correctoUserInfo = {
+          id: userInfo.id,
+          name: userInfo.name,
+          lastname: userInfo.lastname,
+          email: userInfo.email,
+          createdAt: userInfo.createdAt,
+          totalAmountDonated: userInfo.publicProfileInformations[0].totalAmountDonated,
+          refferalsQuantity: userInfo.publicProfileInformations[0].referralsQuantity,
+          hasSubscription: userSubscription ? true : false,
+        };
+        return correctoUserInfo;
+      }));
+    res.status(200).send(usersWithTheirInfo);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send({ message: err.message });
+  }
+};

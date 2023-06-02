@@ -40,4 +40,5 @@ module.exports = function(app) {
   app.post("/api/auth/updateUserInformation", controller.updateUserInformation);
   app.post("/api/auth/getCurrentUser", controller.getCurrentUser);
   app.post("/api/auth/setUserProfilePicture", controller.setUserProfilePicture);
+  app.post("/api/auth/getUsersForReport", controller.getUsersForReport);
 };
