@@ -26,4 +26,5 @@ module.exports = function(app) {
   app.post("/api/payment/countRecurrentTransactions", controller.countRecurrentTransactions)
   app.post("/api/payment/assingLongevityMilestone", controller.assingLongevityMilestone)
   app.post("/api/payment/amountDonatedByRefferals", controller.amountDonatedByRefferals)
+  app.post("/api/payment/getDashboardsInfo", controller.getDashboardsInfo)
 };
