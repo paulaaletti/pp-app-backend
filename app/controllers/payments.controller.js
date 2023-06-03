@@ -421,15 +421,31 @@ exports.getAllHistoricSubscriptions = async (req, res) => {
 }
 
 exports.getSubscriptionsStatesByMonth = async (req, res) => {
-  db.sequelize.query('SELECT * FROM "subscriptionStateHistorics" WHERE ((EXTRACT(YEAR FROM "createdAt") = '+req.body.year+' AND EXTRACT(MONTH FROM "createdAt") <='+req.body.month+'and (state =\'A\' or state =\'P\')) or (EXTRACT(YEAR FROM "createdAt") = '+req.body.year+' AND EXTRACT(MONTH FROM "createdAt") ='+req.body.month+'))').then(async (subsS) => {
+  console.log(req.body);
+
+  const query = `SELECT * FROM "subscriptionStateHistorics" WHERE 
+    ((EXTRACT(YEAR FROM "createdAt") = ${req.body.year} 
+    AND EXTRACT(MONTH FROM "createdAt") <= ${req.body.month} 
+    AND (state = 'A' OR state = 'P')) 
+    OR (EXTRACT(YEAR FROM "createdAt") = ${req.body.year} 
+    AND EXTRACT(MONTH FROM "createdAt") = ${req.body.month}))`;
+
+  try {
+    const subsS = await db.sequelize.query(query);
+     console.log("subsS", subsS)
+     console.log("year", req.body.year)
+     console.log("month", req.body.month)
+     console.log("subsS", subsS)
     if (!subsS) {
-    return res.status(404).send({ message: "SubsS by month not found" });
+      return res.status(404).send({ message: "SubsS by month not found" });
     }
+
     res.status(200).send(subsS[0]);
-  }).catch(err => {
-      res.status(500).send({ message: err.message });
-  });
-}
+  } catch (err) {
+    console.error(err);
+    res.status(500).send({ message: err.message });
+  }
+};
 
 exports.getMonthIncome = async (req, res) => {
   if(req.body.month == undefined || req.body.month > 12 || req.body.month < 1){
