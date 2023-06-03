@@ -2,6 +2,7 @@ const axios = require('axios');
 const db = require("../models");
 const { user: User, subscription: Subscription, transaction: Transaction, subscriptionState: SubscriptionState, transactionState: TransactionState, subscriptionStateHistoric: SubscriptionStateHistoric, publicProfileInformation: PublicProfileInformation} = db;
 const Op = db.Sequelize.Op;
+const literal = db.Sequelize.literal;
 const Sequelize = db.Sequelize;
 
 verifyFirstSubscription = async (userId) => {
@@ -687,3 +688,103 @@ exports.amountDonatedByRefferals = async (req, res) => {
       res.status(500).send({ message: err.message });
   });
 };
+
+exports.getDashboardsInfo = async (req, res) => {
+  
+  try {
+    //const currentDate = new Date();
+    //const currentMonth = currentDate.getMonth() + 1; 
+    //const currentYear = currentDate.getFullYear();
+    const dashboardsInfo = initializeDarshboardInfo();
+    
+    const year = req.body.year;
+    const actualYearFormatted = [year ].join('-');
+    
+    await getTransactionTotalByMonth(actualYearFormatted, dashboardsInfo);
+    await getSubscriptionTotalAmountByMonth(dashboardsInfo);
+
+    
+
+    res.status(200).send(dashboardsInfo);
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).send({ message: err.message });
+  }
+};
+
+async function getSubscriptionTotalAmountByMonth(dashboardsInfo) {
+  let totalSubscriptionAmount = await Subscription.findAll({
+    where: {
+      nextPaymentDate: {
+        [Op.gt]: Sequelize.literal('CURRENT_DATE()')
+      }
+    },
+    include: [{
+      model: SubscriptionState,
+      attributes: [],
+      where: { state: 'A' },
+      required: true
+    }],
+    attributes: [
+      [Sequelize.literal("DATE_FORMAT(nextPaymentDate, '%Y-%m')"), "groupedPattern"],
+      [Sequelize.fn("SUM", Sequelize.col("amount")), "totalSubscriptionAmount"],
+      [Sequelize.fn("MONTH", Sequelize.col("nextPaymentDate")), "month"]
+    ],
+    group: ["groupedPattern", "month"]
+  });
+
+
+  totalSubscriptionAmount = totalSubscriptionAmount.map((item) => {
+    dashboardsInfo.montoSuscripciones[item.dataValues.month] = parseInt(item.dataValues.totalSubscriptionAmount, 10);
+  });
+}
+
+async function getTransactionTotalByMonth(actualYearFormatted, dashboardsInfo) {
+  let totalTransactionAmount = await Transaction.findAll({
+    where: {
+      paymentDate: { [Op.like]: `${actualYearFormatted}%`, }
+    },
+    include: [{
+      model: TransactionState,
+      attributes: [],
+      where: { state: "A" },
+      required: true
+    }],
+    attributes: [
+      [literal(`DATE_FORMAT(paymentDate, '%Y-%m')`), "groupedPattern"],
+      [Sequelize.fn("SUM", Sequelize.cast(Sequelize.col("amount"), 'integer')), "totalTransactionAmount"],
+      [Sequelize.fn('MONTH', Sequelize.col('paymentDate')), 'month']
+    ],
+    group: ['groupedPattern', 'month']
+  });
+
+  totalTransactionAmount.map((item) => {
+    dashboardsInfo.montoTransacciones[item.dataValues.month] = parseInt(item.dataValues.totalTransactionAmount, 10);
+  });
+}
+
+function initializeDarshboardInfo() {
+  const months = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+
+
+  const dashboardsInfo = {
+    montoTransacciones: {},
+    montoSuscripciones: {},
+    estadosSuscripciones: {},
+    cantidadUsuarios: {},
+  };
+
+  months.forEach((month) => {
+    dashboardsInfo.montoTransacciones[month] = 0;
+    dashboardsInfo.montoSuscripciones[month] = 0;
+    dashboardsInfo.estadosSuscripciones[month] = {
+      activas: 0,
+      canceladas: 0,
+      pausadas: 0,
+    };
+    dashboardsInfo.cantidadUsuarios[month] = 0;
+  });
+  return dashboardsInfo;
+}
+
