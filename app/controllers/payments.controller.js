@@ -698,12 +698,50 @@ exports.getDashboardsInfo = async (req, res) => {
     
     const year = req.body.year;
     const actualYearFormatted = [year ].join('-');
+    const months = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
     
     await getTransactionTotalByMonth(actualYearFormatted, dashboardsInfo);
     await getSubscriptionTotalAmountByMonth(dashboardsInfo);
 
+    let accumulatedUsers = await User.findAll({
+      attributes: [
+        [Sequelize.literal("DATE_FORMAT(createdAt, '%Y-%m')"), "groupedPattern"],
+        [Sequelize.fn("MONTH", Sequelize.col("createdAt")), "month"],
+        [
+          Sequelize.literal(`(
+            SELECT COUNT(*)
+            FROM users AS u2
+            WHERE DATE_FORMAT(u2.createdAt, '%Y-%m') <= DATE_FORMAT(users.createdAt, '%Y-%m')
+          )`),
+          'userCount'
+        ]
+      ],
+      group: ['groupedPattern', 'userCount', 'month'],
+      order: [Sequelize.literal("MIN(createdAt)")],
+    });
+   
+    console.log(accumulatedUsers);
     
+    /* User.findAll({
+      attributes: [
+        [Sequelize.fn('COUNT', Sequelize.col('*')), 'cantidadNuevos'],
+        [Sequelize.fn('YEAR', Sequelize.col('createdAt')), 'year'],
+        [Sequelize.fn('MONTH', Sequelize.col('createdAt')), 'month']
+      ],
+      group: ['year', 'month']
+    });
+    let totalUsuariosAcumulados = 0;
+    let usuariosAcumuladosIncompletos = {}
+    newUsersPerMonth.forEach((item) => {
+      totalUsuariosAcumulados += item.dataValues.cantidadNuevos;
+      if(!usuariosAcumuladosIncompletos[item.dataValues.year]) usuariosAcumuladosIncompletos[item.dataValues.year] = {};
+      usuariosAcumuladosIncompletos[item.dataValues.year][item.dataValues.month] = totalUsuariosAcumulados;
+    });
+    console.log(usuariosAcumuladosIncompletos);
 
+    months.forEach((month) => {
+      dashboardsInfo.cantidadUsuarios[month]= usuariosAcumuladosIncompletos[year]
+ */
     res.status(200).send(dashboardsInfo);
 
   } catch (err) {
