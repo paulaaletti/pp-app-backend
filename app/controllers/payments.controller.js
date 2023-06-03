@@ -465,6 +465,7 @@ exports.getMonthIncome = async (req, res) => {
   if (monthAsString.length < 2) monthAsString = '0' + req.body.month.toString();
 
   date = [year, monthAsString].join('-');
+  
   //res.status(200).send({"total": 0})
 
   if(req.body.month <((new Date()).getMonth() + 1)){
