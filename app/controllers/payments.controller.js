@@ -692,9 +692,6 @@ exports.amountDonatedByRefferals = async (req, res) => {
 exports.getDashboardsInfo = async (req, res) => {
   
   try {
-    //const currentDate = new Date();
-    //const currentMonth = currentDate.getMonth() + 1; 
-    //const currentYear = currentDate.getFullYear();
     const dashboardsInfo = initializeDarshboardInfo();
     
     const year = req.body.year;
@@ -703,6 +700,7 @@ exports.getDashboardsInfo = async (req, res) => {
     await getTransactionTotalByMonth(actualYearFormatted, dashboardsInfo);
     await getSubscriptionTotalAmountByMonth(dashboardsInfo);
     await getUsersQuantityByMonth(year, dashboardsInfo);
+    await getAmountTotalByMode(actualYearFormatted, dashboardsInfo);
 
     res.status(200).send(dashboardsInfo);
 
@@ -784,6 +782,31 @@ async function getTransactionTotalByMonth(actualYearFormatted, dashboardsInfo) {
   });
 }
 
+async function getAmountTotalByMode(actualYearFormatted, dashboardsInfo) {
+  let totalAmountByMode = await await Transaction.findAll({
+    where: {
+      paymentDate: { [Op.like]: `${actualYearFormatted}%`, }
+    },
+    include: [{
+      model: TransactionState,
+      attributes: [],
+      where: { state: "A" },
+      required: true
+    }],
+    attributes: [
+      [literal(`DATE_FORMAT(paymentDate, '%Y-%m')`), "groupedPattern"],
+      [Sequelize.fn("SUM", Sequelize.cast(Sequelize.col("amount"), 'integer')), "totalAmountByMode"],
+      [Sequelize.fn('MONTH', Sequelize.col('paymentDate')), 'month'],
+      'type'
+    ],
+    group: ['groupedPattern', 'month', 'type']
+  });
+
+  totalAmountByMode.map((item) => {
+    dashboardsInfo.montoPorModo[item.dataValues.month][item.dataValues.type] = parseInt(item.dataValues.totalAmountByMode, 10);
+  });
+}
+
 function initializeDarshboardInfo() {
   const months = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
 
@@ -793,6 +816,7 @@ function initializeDarshboardInfo() {
     montoSuscripciones: {},
     estadosSuscripciones: {},
     cantidadUsuarios: {},
+    montoPorModo:{},
   };
 
   months.forEach((month) => {
@@ -804,6 +828,10 @@ function initializeDarshboardInfo() {
       pausadas: 0,
     };
     dashboardsInfo.cantidadUsuarios[month] = 0;
+    dashboardsInfo.montoPorModo[month] = {
+      onlyTime: 0,
+      recurrent: 0,
+    };
   });
   return dashboardsInfo;
 }
