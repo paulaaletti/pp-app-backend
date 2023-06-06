@@ -699,8 +699,33 @@ exports.getDashboardsInfo = async (req, res) => {
     
     await getTransactionTotalByMonth(actualYearFormatted, dashboardsInfo);
     await getSubscriptionTotalAmountByMonth(dashboardsInfo);
+<<<<<<< Updated upstream
     await getUsersQuantityByMonth(year, dashboardsInfo);
     await getAmountTotalByMode(actualYearFormatted, dashboardsInfo);
+=======
+
+
+    const result = await User.findAll({
+      attributes: [
+        [Sequelize.fn('YEAR', Sequelize.col('createdAt')), 'year'],
+        [Sequelize.fn('MONTH', Sequelize.col('createdAt')), 'month'],
+        [
+          Sequelize.literal(`(
+            SELECT COUNT(*)
+            FROM users AS u2
+            WHERE DATE_FORMAT(u2.createdat, '%Y-%m') <= DATE_FORMAT(users.createdAt, '%Y-%m')
+          )`),
+          'userCount'
+        ],
+      ],
+      distinct: true,
+      group: ['year', 'month', 'createdAt'],
+      order: ['year', 'month']
+    });
+    console.log("________________")
+    console.log(result);
+
+>>>>>>> Stashed changes
 
     res.status(200).send(dashboardsInfo);
 
