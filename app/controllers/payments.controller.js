@@ -421,8 +421,6 @@ addEntryToSubsStateHistoryWhenModify = async (subscriptionId,state, oldState) =>
     order: [['createdAt', 'DESC']], // Fetch the latest entry based on createdAt column
   })
     .then((latestEntry) => {
-
-      console.log(latestEntry)
       
       totalActiveToTheMoment =  state==="A" ? latestEntry.totalActiveToTheMoment + 1 : latestEntry.totalActiveToTheMoment;
       totalPausedToTheMoment =  state==="P" ? latestEntry.totalPausedToTheMoment + 1 : latestEntry.totalPausedToTheMoment;
@@ -747,31 +745,7 @@ exports.getDashboardsInfo = async (req, res) => {
     await getUsersQuantityByMonth(year, dashboardsInfo);
     await getAmountTotalByMode(actualYearFormatted, dashboardsInfo);
 
-    let latestEntryByMonth = await SubscriptionStateHistoric.findAll({
-      attributes: [
-        'totalActiveToTheMoment',
-        'totalPausedToTheMoment',
-        'totalCancelledToTheMoment',
-        [literal("DATE_FORMAT(createdAt, '%Y-%m')"), 'groupedPattern'],
-        [Sequelize.fn("MONTH", Sequelize.col("createdAt")), "month"],
-      ],
-      where: literal(`
-        createdAt IN (
-          SELECT MAX(createdAt) AS maxCreatedAt
-          FROM subscriptionStateHistorics
-          WHERE YEAR(createdAt) = ${year}
-          GROUP BY YEAR(createdAt), MONTH(createdAt)
-        )
-      `),
-    });
-    latestEntryByMonth = latestEntryByMonth.forEach((entry) => {
-      dashboardsInfo.estadosSuscripciones[entry.dataValues.month] = {
-        activas: entry.dataValues.totalActiveToTheMoment,
-        pausadas: entry.dataValues.totalPausedToTheMoment,
-        canceladas: entry.dataValues.totalCancelledToTheMoment,
-        total: entry.dataValues.totalActiveToTheMoment + entry.dataValues.totalPausedToTheMoment,
-      };
-    });
+    await getSubsbyStateByMonth(year, dashboardsInfo);
 
     res.status(200).send(dashboardsInfo);
 
@@ -780,6 +754,34 @@ exports.getDashboardsInfo = async (req, res) => {
     res.status(500).send({ message: err.message });
   }
 };
+
+async function getSubsbyStateByMonth(year, dashboardsInfo) {
+  let latestEntryByMonth = await SubscriptionStateHistoric.findAll({
+    attributes: [
+      'totalActiveToTheMoment',
+      'totalPausedToTheMoment',
+      'totalCancelledToTheMoment',
+      [literal("DATE_FORMAT(createdAt, '%Y-%m')"), 'groupedPattern'],
+      [Sequelize.fn("MONTH", Sequelize.col("createdAt")), "month"],
+    ],
+    where: literal(`
+        createdAt IN (
+          SELECT MAX(createdAt) AS maxCreatedAt
+          FROM subscriptionStateHistorics
+          WHERE YEAR(createdAt) = ${year}
+          GROUP BY YEAR(createdAt), MONTH(createdAt)
+        )
+      `),
+  });
+  latestEntryByMonth = latestEntryByMonth.forEach((entry) => {
+    dashboardsInfo.estadosSuscripciones[entry.dataValues.month] = {
+      activas: entry.dataValues.totalActiveToTheMoment,
+      pausadas: entry.dataValues.totalPausedToTheMoment,
+      canceladas: entry.dataValues.totalCancelledToTheMoment,
+      total: entry.dataValues.totalActiveToTheMoment + entry.dataValues.totalPausedToTheMoment,
+    };
+  });
+}
 
 function addEntryToSubsStateHistory(subscription) {
   SubscriptionStateHistoric.findOne({
