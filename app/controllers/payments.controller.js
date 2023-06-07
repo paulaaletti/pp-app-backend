@@ -75,6 +75,8 @@ exports.createSubscription = async (req, res) => {
         subscriptionId: subscription.id,
         state: "A",
       });
+
+      addEntryToSubsStateHistory(subscription);
     };
     res.send({ message: "Subscription created successfully!" });
   } catch (error) {
@@ -177,25 +179,32 @@ exports.modifySubscription = async (req, res) => {
 }
 
 exports.modifySubscriptionState = async (req, res) => {
-    SubscriptionState.update({ state: req.body.state }, {
-        where: {
-          subscriptionId: req.body.subscriptionId
+    SubscriptionState.findOne({ where: { subscriptionId: req.body.subscriptionId } }).then(async (oldSubs) => {
+        if (!oldSubs) {
+          return res.status(404).send({ message: "Subscription state Not found." });
         }
-      })
-      .then(async (subs) => {
-            if (!subs) {
-            return res.status(404).send({ message: "Subscription state Not found." });
+        SubscriptionState.update({ state: req.body.state }, {
+            where: {
+              subscriptionId: req.body.subscriptionId
             }
-            try {
+          })
+        .then(async (subs) => {
+              if (!subs) {
+              return res.status(404).send({ message: "Subscription state Not found." });
+              }
+              try {
                 res.send({ message: "Subscription state modified successfully!" });
-            }
-            catch (error) {
-            res.status(500).send({ message: error.message });
-            }
-            modifySubscriptionHistoric(req.body.subscriptionId,req.body.state,new Date().getFullYear(), new Date().getMonth() + 1) //año y mes, se pasan desde el filtro
-        }).catch(err => {
-            res.status(500).send({ message: err.message });
-        });
+              }
+              catch (error) {
+              res.status(500).send({ message: error.message });
+              }
+              addEntryToSubsStateHistoryWhenModify(req.body.subscriptionId,req.body.state, oldSubs.state)
+          }).catch(err => {
+              res.status(500).send({ message: err.message });
+          });
+    }).catch(err => {
+      res.status(500).send({ message: err.message });
+    });
 }
 
 exports.modifyTransactionState = async (req, res) => {
@@ -393,19 +402,55 @@ exports.getPendingTransactions = async (req, res) => {
       });
 }
 
-modifySubscriptionHistoric = async (subscriptionId,state,year,month) => {
-  //db.sequelize.query('SELECT * FROM "subscriptionStateHistorics" WHERE "subscriptionId" = '+subscriptionId+' AND (EXTRACT(YEAR FROM "createdAt") = '+year+' AND EXTRACT(MONTH FROM "createdAt") ='+month)
-  db.sequelize.query('SELECT * FROM "subscriptionStateHistorics" WHERE "subscriptionId" ='+subscriptionId+' and EXTRACT(YEAR FROM "createdAt")='+year+' and EXTRACT(MONTH FROM "createdAt")='+month+' LIMIT 1').then(async (subs) => {
-          
-          if (!subs) {
-          return "insertado"
-          //return res.status(404).send({ message: "Subs not found" });
-          }
-          subs=subs[0][0]
-          return "insertado"
-      }).catch(() => {
-          return "error"
+function resetTotalCancelledToTheMomentIfNecessary(totalCancelledToTheMoment, previousOneDate){
+  var d = new Date();
+  month = d.getMonth() + 1;
+  year = d.getFullYear();
+
+  var previousD = new Date(previousOneDate);
+  previousMonth = previousD.getMonth() + 1;
+  previousYear = previousD.getFullYear();
+
+  console.log(month, year, previousMonth, previousYear)
+
+  return (month === previousMonth && year === previousYear) ? totalCancelledToTheMoment : 0;
+}
+
+addEntryToSubsStateHistoryWhenModify = async (subscriptionId,state, oldState) => {
+  SubscriptionStateHistoric.findOne({
+    order: [['createdAt', 'DESC']], // Fetch the latest entry based on createdAt column
+  })
+    .then((latestEntry) => {
+
+      console.log(latestEntry)
+      
+      totalActiveToTheMoment =  state==="A" ? latestEntry.totalActiveToTheMoment + 1 : latestEntry.totalActiveToTheMoment;
+      totalPausedToTheMoment =  state==="P" ? latestEntry.totalPausedToTheMoment + 1 : latestEntry.totalPausedToTheMoment;
+      
+      totalCancelledToTheMoment = resetTotalCancelledToTheMomentIfNecessary(latestEntry.totalCancelledToTheMoment, latestEntry.createdAt);
+      totalCancelledToTheMoment =  state==="C" ? totalCancelledToTheMoment + 1 : totalCancelledToTheMoment; 
+            
+      oldState === "A" ? totalActiveToTheMoment = latestEntry.totalActiveToTheMoment - 1 : totalActiveToTheMoment;
+      oldState === "P" ? totalPausedToTheMoment = latestEntry.totalPausedToTheMoment - 1 : totalPausedToTheMoment;
+      
+
+      // Create a new entry in SubscriptionStateHistoric table
+      return SubscriptionStateHistoric.create({
+        subscriptionId: subscriptionId,
+        state: state,
+        totalActiveToTheMoment: totalActiveToTheMoment,
+        totalPausedToTheMoment: totalPausedToTheMoment,
+        totalCancelledToTheMoment: totalCancelledToTheMoment,
       });
+    })
+    .then((createdEntry) => {
+      // Handle successful creation
+      console.log('New entry created:', createdEntry.toJSON());
+    })
+    .catch((error) => {
+      // Handle error
+      console.error('Error creating entry:', error);
+    });
 }
 
 exports.getAllHistoricSubscriptions = async (req, res) => {
@@ -699,33 +744,34 @@ exports.getDashboardsInfo = async (req, res) => {
     
     await getTransactionTotalByMonth(actualYearFormatted, dashboardsInfo);
     await getSubscriptionTotalAmountByMonth(dashboardsInfo);
-<<<<<<< Updated upstream
     await getUsersQuantityByMonth(year, dashboardsInfo);
     await getAmountTotalByMode(actualYearFormatted, dashboardsInfo);
-=======
 
-
-    const result = await User.findAll({
+    let latestEntryByMonth = await SubscriptionStateHistoric.findAll({
       attributes: [
-        [Sequelize.fn('YEAR', Sequelize.col('createdAt')), 'year'],
-        [Sequelize.fn('MONTH', Sequelize.col('createdAt')), 'month'],
-        [
-          Sequelize.literal(`(
-            SELECT COUNT(*)
-            FROM users AS u2
-            WHERE DATE_FORMAT(u2.createdat, '%Y-%m') <= DATE_FORMAT(users.createdAt, '%Y-%m')
-          )`),
-          'userCount'
-        ],
+        'totalActiveToTheMoment',
+        'totalPausedToTheMoment',
+        'totalCancelledToTheMoment',
+        [literal("DATE_FORMAT(createdAt, '%Y-%m')"), 'groupedPattern'],
+        [Sequelize.fn("MONTH", Sequelize.col("createdAt")), "month"],
       ],
-      distinct: true,
-      group: ['year', 'month', 'createdAt'],
-      order: ['year', 'month']
+      where: literal(`
+        createdAt IN (
+          SELECT MAX(createdAt) AS maxCreatedAt
+          FROM subscriptionStateHistorics
+          WHERE YEAR(createdAt) = ${year}
+          GROUP BY YEAR(createdAt), MONTH(createdAt)
+        )
+      `),
     });
-    console.log("________________")
-    console.log(result);
-
->>>>>>> Stashed changes
+    latestEntryByMonth = latestEntryByMonth.forEach((entry) => {
+      dashboardsInfo.estadosSuscripciones[entry.dataValues.month] = {
+        activas: entry.dataValues.totalActiveToTheMoment,
+        pausadas: entry.dataValues.totalPausedToTheMoment,
+        canceladas: entry.dataValues.totalCancelledToTheMoment,
+        total: entry.dataValues.totalActiveToTheMoment + entry.dataValues.totalPausedToTheMoment,
+      };
+    });
 
     res.status(200).send(dashboardsInfo);
 
@@ -734,6 +780,34 @@ exports.getDashboardsInfo = async (req, res) => {
     res.status(500).send({ message: err.message });
   }
 };
+
+function addEntryToSubsStateHistory(subscription) {
+  SubscriptionStateHistoric.findOne({
+    order: [['createdAt', 'DESC']], // Fetch the latest entry based on createdAt column
+  })
+    .then((latestEntry) => {
+      let totalActiveToTheMoment = latestEntry ? latestEntry.totalActiveToTheMoment: 0;
+      let totalPausedToTheMoment = latestEntry ? latestEntry.totalPausedToTheMoment: 0;
+      let totalCancelledToTheMoment = latestEntry ? latestEntry.totalCancelledToTheMoment: 0;
+
+      // Create a new entry in SubscriptionStateHistoric table
+      return SubscriptionStateHistoric.create({
+        subscriptionId: subscription.id,
+        state: "A",
+        totalActiveToTheMoment: totalActiveToTheMoment+1,
+        totalPausedToTheMoment: totalPausedToTheMoment,
+        totalCancelledToTheMoment: totalCancelledToTheMoment,
+      });
+    })
+    .then((createdEntry) => {
+      // Handle successful creation
+      console.log('New entry created:', createdEntry.toJSON());
+    })
+    .catch((error) => {
+      // Handle error
+      console.error('Error creating entry:', error);
+    });
+}
 
 async function getUsersQuantityByMonth(year, dashboardsInfo) {
   let accumulatedUsersIncomplete = await User.findAll({
@@ -851,6 +925,7 @@ function initializeDarshboardInfo() {
       activas: 0,
       canceladas: 0,
       pausadas: 0,
+      total:0,
     };
     dashboardsInfo.cantidadUsuarios[month] = 0;
     dashboardsInfo.montoPorModo[month] = {

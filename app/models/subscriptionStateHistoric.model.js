@@ -3,6 +3,15 @@ module.exports = (sequelize, Sequelize) => {
       state: {
         type: Sequelize.ENUM("A","C","P")
       },
+      totalActiveToTheMoment: {
+        type: Sequelize.INTEGER
+      },
+      totalPausedToTheMoment: {
+        type: Sequelize.INTEGER
+      },
+      totalCancelledToTheMoment: {
+        type: Sequelize.INTEGER
+      },
     });
     return SubscriptionStateHistoric;
   };
