@@ -773,7 +773,44 @@ async function getSubsbyStateByMonth(year, dashboardsInfo) {
         )
       `),
   });
-  latestEntryByMonth = latestEntryByMonth.forEach((entry) => {
+
+  let lastYearSubs = await SubscriptionStateHistoric.findAll({
+    attributes: [
+      'totalActiveToTheMoment',
+      'totalPausedToTheMoment',
+      'totalCancelledToTheMoment',
+      [literal("DATE_FORMAT(createdAt, '%Y-%m')"), 'groupedPattern'],
+      [Sequelize.fn('MONTH', Sequelize.col('createdAt')), 'month'],
+    ],
+    where: literal(`DATE_FORMAT(createdAt, '%Y-%m') LIKE '${year-1}-%'`),
+    order: [[Sequelize.literal('createdAt'), 'DESC']],
+    limit: 1,
+  });
+
+  if(lastYearSubs){
+    for(let i = 1; i < latestEntryByMonth[0].dataValues.month; i++){
+      dashboardsInfo.estadosSuscripciones[i] = {
+        activas: lastYearSubs[0].dataValues.totalActiveToTheMoment,
+        pausadas: lastYearSubs[0].dataValues.totalPausedToTheMoment,
+        canceladas: lastYearSubs[0].dataValues.totalCancelledToTheMoment,
+        total: lastYearSubs[0].dataValues.totalActiveToTheMoment + lastYearSubs[0].dataValues.totalPausedToTheMoment,
+      };
+    }
+  }
+
+  latestEntryByMonth = latestEntryByMonth.forEach((entry, index) => {
+    if(index !== 0){
+      let distancia = entry.dataValues.month - latestEntryByMonth[index - 1].dataValues.month;
+      for(let i = 1; i < distancia; i++){
+        let monthAux = latestEntryByMonth[index].dataValues.month - i;
+        dashboardsInfo.estadosSuscripciones[monthAux] = {
+          activas: latestEntryByMonth[index-1].dataValues.totalActiveToTheMoment,
+          pausadas: latestEntryByMonth[index-1].dataValues.totalPausedToTheMoment,
+          canceladas: latestEntryByMonth[index-1].dataValues.totalCancelledToTheMoment,
+          total: latestEntryByMonth[index-1].dataValues.totalActiveToTheMoment + latestEntryByMonth[index-1].dataValues.totalPausedToTheMoment,
+        };
+      }
+    }
     dashboardsInfo.estadosSuscripciones[entry.dataValues.month] = {
       activas: entry.dataValues.totalActiveToTheMoment,
       pausadas: entry.dataValues.totalPausedToTheMoment,
@@ -781,6 +818,8 @@ async function getSubsbyStateByMonth(year, dashboardsInfo) {
       total: entry.dataValues.totalActiveToTheMoment + entry.dataValues.totalPausedToTheMoment,
     };
   });
+
+
 }
 
 function addEntryToSubsStateHistory(subscription) {
