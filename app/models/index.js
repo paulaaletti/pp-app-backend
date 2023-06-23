@@ -3,12 +3,12 @@ const Sequelize = require("sequelize");
 const fs = require('fs');
 const path = require('path');
 
-const sequelize = new Sequelize(process.env.DB_DATABASE,
-  process.env.USER,
-  process.env.PASSWORD,
+const sequelize = new Sequelize(config.DB,
+                                config.USER,
+                                config.PASSWORD,
                                 {
-                                    host: process.env.HOST,
-                                    port: process.env.PORT,
+                                    host: config.HOST,
+                                    port: config.PORT,
                                     dialect: config.dialect,
                                     // ssl: config.SSL == "true",
                                     dialectOptions: {
