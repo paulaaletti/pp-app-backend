@@ -1,6 +1,7 @@
 const db = require("../models");
 const axios = require("axios");
 const { Sequelize } = require('sequelize');
+const { QueryTypes } = require('sequelize');
 const { publicProfileInformation: PublicProfileInformation, user: User, publicProfileConfiguration: PublicProfileConfiguration} = db;
 
 const amountDonatedByRefferals = (userId) => {
@@ -60,7 +61,7 @@ exports.getPublicProfileInformation = async (req, res) => {
 
 exports.getPublicProfileInformationByUserURL = async (req, res) => {
   try {
-    const userInfo = await PublicProfileInformation.findOne({
+    /* const userInfo = await PublicProfileInformation.findOne({
       where: { publicProfileUrl: req.body.userURL },
       include: [
         { model: User, required: true },
@@ -70,8 +71,36 @@ exports.getPublicProfileInformationByUserURL = async (req, res) => {
           } 
         },
       ],
+    }) */
+
+    const queryResp = await db.sequelize.query(`
+      SELECT
+          ppc.*,      
+          ppi.*,
+          u.*  
+      FROM
+          defaultdb.publicProfileInformations AS ppi
+      JOIN
+          defaultdb.publicProfileConfigurations AS ppc
+      ON
+        ppc.userId = ppi.userId
+      JOIN
+        defaultdb.users AS u
+      ON
+        u.id = ppi.userId
+      WHERE
+          ppi.publicProfileUrl = :userURL;
+    `, {
+      replacements: { userURL: req.body.userURL },
+      type: QueryTypes.SELECT,
     });
-    const totalDonatedByRefferals = await amountDonatedByRefferals(userInfo.user.id)
+    
+    const userInfo = queryResp[0];
+    console.log("---------------------------------")
+    console.log(userInfo)
+    console.log("---------------------------------")
+
+    const totalDonatedByRefferals = await amountDonatedByRefferals(userInfo.id)
     const correctoUserInfo = {
       id: userInfo.id,
       linkedInProfile: userInfo.linkedInProfile,
@@ -82,20 +111,20 @@ exports.getPublicProfileInformationByUserURL = async (req, res) => {
       chosenCoverPhotoId: userInfo.chosenCoverPhotoId,
       biography: userInfo.biography,
       user: {
-        id: userInfo.user.id,
-        name: userInfo.user.name,
-        lastname: userInfo.user.lastname,
+        id: userInfo.id,
+        name: userInfo.name,
+        lastname: userInfo.lastname,
       },
       publicProfileConfiguration: {
-        showLifeImpact: userInfo.publicProfileConfiguration.showLifeImpact,
-        showReferralsTotalAmountDonated: userInfo.publicProfileConfiguration.showReferralsTotalAmountDonated,
-        showReferralsQuantity: userInfo.publicProfileConfiguration.showReferralsQuantity,
-        showTotalAmountDonated: userInfo.publicProfileConfiguration.showTotalAmountDonated,
+        showLifeImpact: userInfo.showLifeImpact,
+        showReferralsTotalAmountDonated: userInfo.showReferralsTotalAmountDonated,
+        showReferralsQuantity: userInfo.showReferralsQuantity,
+        showTotalAmountDonated: userInfo.showTotalAmountDonated,
     }}
-    if (userInfo.publicProfileConfiguration.showReferralsQuantity) correctoUserInfo['referralsQuantity']= userInfo.referralsQuantity;
-    if(userInfo.publicProfileConfiguration.showTotalAmountDonated) correctoUserInfo['totalAmountDonated'] = userInfo.totalAmountDonated;
-    if(userInfo.publicProfileConfiguration.showLifeImpact) correctoUserInfo['lifeImpact'] = userInfo.totalAmountDonated+ totalDonatedByRefferals.data.total;
-    if(userInfo.publicProfileConfiguration.showReferralsTotalAmountDonated) correctoUserInfo['referralsTotalAmountDonated'] = totalDonatedByRefferals.data.total;
+    if (userInfo.showReferralsQuantity) correctoUserInfo['referralsQuantity']= userInfo.referralsQuantity;
+    if(userInfo.showTotalAmountDonated) correctoUserInfo['totalAmountDonated'] = userInfo.totalAmountDonated;
+    if(userInfo.showLifeImpact) correctoUserInfo['lifeImpact'] = userInfo.totalAmountDonated+ totalDonatedByRefferals.data.total;
+    if(userInfo.showReferralsTotalAmountDonated) correctoUserInfo['referralsTotalAmountDonated'] = totalDonatedByRefferals.data.total;
 
     res.status(200).send(correctoUserInfo);
   } catch (err) {
