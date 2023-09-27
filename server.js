@@ -179,7 +179,7 @@ app.get('/verify/:token', (req, res)=>{
 			res.send("La verificación del email fallo, posiblemente el link es invalido o ha expirado");
 		}
 		else {
-			res.redirect(`http://localhost:3000/resetPassword/${1}/${token}`); 
+			res.redirect(`https://dashboard.patapila.org/resetPassword/${1}/${token}`); 
 		}
 	});
 });
