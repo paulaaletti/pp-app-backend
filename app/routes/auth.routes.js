@@ -34,7 +34,7 @@ module.exports = function(app) {
   app.post("/api/auth/signout", controller.signout);
   app.post("/api/auth/refreshtoken", controller.refreshToken);
   app.post("/api/auth/sendMailTokenToResetPassword",tokenController.sendMailTokenToResetPassword);
-  api.post("/resetPassword",passwordController.resetPassword);
+  api.post("/resetPassword/:token",passwordController.resetPassword);
   app.post("/api/auth/updatePasswordViaEmail",passwordController.updatePasswordViaEmail);
   app.post("/api/auth/changePasswordViaSettings",passwordController.changePasswordViaSettings);
   app.post("/api/auth/findUserById", controller.findUserById);
