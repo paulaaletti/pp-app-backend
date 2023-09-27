@@ -158,11 +158,14 @@ exports.createTransaction = async (req, res) => {
 };
 
 exports.modifySubscription = async (req, res) => {
-    Subscription.findOne({
+    Subscription.update({ lastPaymentDate: req.body.lastPaymentDate, 
+                          nextPaymentDate: req.body.nextPaymentDate, 
+                          amount:  req.body.amount,
+                          frequency: req.body.frequency}, {
       where: {
         id: req.body.subscriptionId
       }
-      })
+    })
       .then(async (subs) => {
             if (!subs) {
             return res.status(404).send({ message: "Subscription Not found." });
