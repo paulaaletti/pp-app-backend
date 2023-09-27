@@ -23,7 +23,7 @@ const configureMail = async (user, aToken) =>{
     html: `<div><p style="color:#0F6938;font-size:18px">Hola ${user.name} ${user.lastname}!<p>
             <p style="font-size:14px;color:#353330">Para poder resetear tu contraseña primero debemos verificar tu email,
             para completar este proceso solo deber hacer click en
-            <a style="font-size:14px" href="https://dashboard.patapila.org/resetPassword/${aToken.token}">este enlace</a>
+            <a style="font-size:14px" href="https://patapila-frontend.vercel.app/resetPassword/${aToken.token}">este enlace</a>
             <span style="font-size:14px;color:#353330">Este link verificara tu identidad y te permitira cambiar tu contraseña</span>
             <p></p>
             <p style="font-size:14px;color:#353330">Saludos, Pata Pila</p>
